@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from . import Holdable, Stowable, TwoHanded
 from .containers import ResourceContainer
-from .objects import Holdable, Stowable, TwoHanded
 from .supplies import Oil
 from .weapons import Weapon
 

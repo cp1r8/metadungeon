@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .objects import Fluid, Quantifiable, Stowable, Substance
+from . import Fluid, Quantifiable, Stowable, Substance
 
 
 class Drinkable:

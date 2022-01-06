@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from .containers import StorageContainer
-from .creatures import Creature
-from .objects import DualHanded, Holdable, Wearable
+from . import Creature
+from ..objects import DualHanded, Holdable, Wearable
+from ..objects.weapons import Weapon
 
 
 class HoldError(ValueError):
@@ -14,6 +14,33 @@ class WearError(ValueError):
 
 
 class Humanoid(Creature):
+
+    class Attack(Creature.Attack):
+
+        def __init__(self, source: 'Humanoid', target) -> None:
+            super().__init__(source, target)
+
+        @property
+        def damage(self) -> int:
+            if isinstance(self.source.main_hand, Weapon):
+                return self.source.main_hand.damage
+            return super().damage
+
+        @property
+        def modifier(self) -> int:
+            # TODO improvised weapon -2 to hit
+            # TODO two-handed weapon needs both hands
+            # TODO short/long range +1/-1 to hit
+            return super().modifier
+
+        @property
+        def source(self) -> 'Humanoid':
+            source = super().source
+            if isinstance(source, Humanoid):
+                return source
+            raise TypeError()
+
+    AT = [(Attack,)]
 
     def __init__(self) -> None:
         super().__init__()

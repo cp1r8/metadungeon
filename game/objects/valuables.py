@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .objects import Heavy, Stowable
+from . import Heavy, Stowable
 from .supplies import Supply
 
 

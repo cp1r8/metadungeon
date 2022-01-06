@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .objects import DualHanded, Fluid, Holdable, Quantifiable, Stowable, Substance, Wearable
+from . import DualHanded, Fluid, Holdable, Quantifiable, Stowable, Substance, Wearable
 from typing import Generic, TypeVar
 
 

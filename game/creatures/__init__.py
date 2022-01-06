@@ -1,9 +1,44 @@
 # -*- coding: utf-8 -*-
 
-from . import d6
+from .. import d6, d20
 
 
 class Creature:
+
+    class Attack:
+
+        # TODO melee vs. missile/ranged
+        DAMAGE = 1
+
+        def __init__(self, source: 'Creature', target) -> None:
+            self.__source = source
+            self.__target = target
+
+        @property
+        def damage(self) -> int:
+            return int(self.DAMAGE)
+
+        @property
+        def modifier(self) -> int:
+            return int(getattr(self.target, 'armour_class', 0))
+
+        @property
+        def source(self) -> 'Creature':
+            return self.__source
+
+        @property
+        def target(self):
+            return self.__target
+
+        def __call__(self, roll: int) -> bool:
+            if roll == 1:
+                return False
+            if roll == 20:
+                return True
+            return roll + self.modifier >= self.source.attack_target_value
+
+        def hits(self) -> bool:
+            return self(d20())
 
     HD = 1
     HD_MOD = +0
@@ -12,6 +47,8 @@ class Creature:
     AC = 9
     MV = 12
     ML = 6
+    AT = []
+    TT = []
 
     # TODO attacks
 
@@ -26,6 +63,10 @@ class Creature:
     @property
     def attack_target_value(self) -> int:
         return int(self.TH)
+
+    @property
+    def attacks(self) -> list:
+        return self.AT
 
     @property
     def hit_dice(self) -> int:
@@ -44,7 +85,7 @@ class Creature:
         return int(self.__hits_taken)
 
     @property
-    def morale(self) -> int:
+    def morale_rating(self) -> int:
         return int(self.ML)
 
     @property
@@ -58,6 +99,10 @@ class Creature:
     @property
     def save_target_value(self) -> int:
         return int(self.SV)
+
+    @property
+    def treasure_types(self) -> list:
+        return self.TT
 
     def hit(self, damage: int) -> bool:
         while damage > 0 and self.hits_taken < self.hit_dice:

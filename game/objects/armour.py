@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .objects import Heavy, Holdable, Wearable
+from . import Heavy, Holdable, Wearable
 
 
 class Armour(Wearable):
