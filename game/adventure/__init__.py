@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from .. import d3, d6
 from ..creatures.adventurers import Adventurer
+from datetime import datetime
 from random import choice
 
 
@@ -52,3 +52,20 @@ class Party:
             member.auto_equip()
             party.add(member)
         return party
+
+
+class World:
+
+    EPOCH = datetime(1001, 1, 1, 0, 0)
+
+    def __init__(self, party: Party, time: datetime = EPOCH) -> None:
+        self.__party = party
+        self.__time = time
+
+    @property
+    def party(self) -> Party:
+        return self.__party
+
+    @property
+    def time(self) -> datetime:
+        return self.__time

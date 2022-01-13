@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from .. import d4, d6, d10
+from ..dice import d4, d6, d10
 from ..objects import armour, containers, supplies, tools, valuables, weapons
-from .humanoids import Human
+from .humans import Human
+from math import ceil
 
 
 class Adventurer(Human):
@@ -77,6 +78,10 @@ class Adventurer(Human):
     @property
     def experience_rate(self) -> int:
         return self.XR_BY_INT[self.__int - 3]  # percent
+
+    @property
+    def gold_for_next_level(self) -> float:
+        return self.copper_for_next_level / valuables.Gold.VALUE_IN_COPPER
 
     @property
     def handle(self) -> str:

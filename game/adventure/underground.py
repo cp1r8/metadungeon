@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import Location, Party
-from .. import d4, d6, d20
+from ..dice import d4, d6, d20
 from random import randint
 
 

@@ -9,26 +9,16 @@ from .objects.armour import Armour, Shield
 from .objects.containers import Belt, ResourceContainer, StorageContainer
 from .objects.supplies import Supply
 from .objects.tools import ImprovisedWeapon
-from .objects.valuables import Gold
 from .objects.weapons import Missile, Weapon
 from math import ceil, floor
 
 
-def print_adventurer(char: Adventurer):
-
-    if char.copper_for_next_level > 0:
-        next_level = f"{char.copper_for_next_level / Gold.VALUE_IN_COPPER:7,.0f}¤"
-    else:
-        next_level = ''
-
-    if char.hit_dice > 0:
-        hits_taken = char.hits_taken + (0.5 if char.partial_hit else 0)
-        health = '▓' * floor(20 * (char.hit_dice - hits_taken) / char.hit_dice)
-        health += '░' * ceil(20 * hits_taken / char.hit_dice)
-    else:
-        health = ''
-
-    print(f"{char.handle:<9} {next_level:<8} {health}")
+def health_bar(char: Creature, width: int) -> str:
+    if not char.hit_dice > 0:
+        return ''
+    hits_taken = char.hits_taken + (0.5 if char.partial_hit else 0)
+    damage = '▓' * floor(width * (char.hit_dice - hits_taken) / char.hit_dice)
+    return damage + ('░' * ceil(width * hits_taken / char.hit_dice))
 
 
 def print_inventory(char: Adventurer, full: bool = False):
@@ -69,7 +59,7 @@ def print_inventory(char: Adventurer, full: bool = False):
 
 def print_inventory_item(item, prefix: str = ' '):
 
-    mass = '*' if isinstance(item, Heavy) else ' '
+    mass = '•' if isinstance(item, Heavy) else ' '
     name = type(item).__name__
     uses = ''
 
@@ -77,7 +67,8 @@ def print_inventory_item(item, prefix: str = ' '):
         name = f"AC{item.armour_class} MV{item.movement_rate} {name}"
     elif isinstance(item, Shield):
         name = f"AC{-item.armour_class_modifier:+d} {name}"
-    elif isinstance(item, Weapon) and (not isinstance(item, ImprovisedWeapon) or prefix in ('%', '>', '≥')):
+    elif isinstance(item, Weapon) and \
+            (not isinstance(item, ImprovisedWeapon) or prefix in ('%', '>', '≥')):
         if isinstance(item, Missile):
             name = f"@{item.ranges[0]} {name}"
         name = f"D{item.damage} {name}"
@@ -105,10 +96,7 @@ def print_inventory_item(item, prefix: str = ' '):
             spent = item.items_per_slot - item.quantity
             uses = ('○' * (item.quantity - 1)) + ('●' * spent)
 
-    if uses:
-        print(f"{prefix}{mass}{name:<27} {uses:>9}")
-    else:
-        print(f"{prefix}{mass}{name}")
+    print(f"{prefix}{mass}{name:<27}{uses:>10}")
 
     if isinstance(item, Stowable):
         for _ in range(0, item.slots_required - 1):
@@ -116,6 +104,8 @@ def print_inventory_item(item, prefix: str = ' '):
 
 
 def print_location(location: Location):
+    area = ''
+    bearing = ''
     if (isinstance(location, Dungeon)):
         if location.flee:
             bearing = f"{location.y}-? FLEE!"
@@ -150,15 +140,13 @@ def print_location(location: Location):
                 area = 'Stairs blocked'
         else:
             area = type(location.area).__name__
-        print(f"{type(location).__name__} {bearing} {area}")
-    else:
-        print(type(location).__name__)
+    print(f"{type(location).__name__} {bearing} {area}")
     print('-' * 39)
     print()
 
 
-def print_statblock(char: Creature):
-    print(' '.join([
+def statblock(char: Creature):
+    return ' '.join([
         f"HD:{char.hit_dice:d}{char.hit_die_modifier:+d}",
         f"TH:{char.attack_target_value:d}",
         f"SV:{char.save_target_value:d}",
@@ -166,4 +154,4 @@ def print_statblock(char: Creature):
         f"MV:{char.movement_rate:d}",
         f"ML:{char.morale_rating:d}",
         # AL, XP, NA, TT
-    ]))
+    ])
