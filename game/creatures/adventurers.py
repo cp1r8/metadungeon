@@ -229,7 +229,7 @@ class Fighter(Adventurer):
 
     @property
     def prefix(self) -> str:
-        return f"F{self.level:X}"
+        return f"F{self.level:d}"
 
     @property
     def save_target_value(self) -> int:
@@ -333,7 +333,7 @@ class Muser(Adventurer):
 
     @property
     def prefix(self) -> str:
-        return f"M{self.level:X}"
+        return f"M{self.level:d}"
 
     @property
     def save_target_value(self) -> int:
@@ -403,7 +403,7 @@ class Thief(Adventurer):
 
     @property
     def prefix(self) -> str:
-        return f"T{self.level:X}"
+        return f"T{self.level:d}"
 
     @property
     def save_target_value(self) -> int:

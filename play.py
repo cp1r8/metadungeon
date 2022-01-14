@@ -3,6 +3,7 @@
 from game import ui
 from game.adventure import Party, World
 from game.adventure.underground import Dungeon
+from game.creatures.adventurers import Adventurer
 from game.dice import d4, d6
 from game.objects.containers import Backpack
 from game.objects.valuables import Gold
@@ -39,7 +40,7 @@ if __name__ == '__main__':
         if '--loot' in sys.argv:
             # TODO TT U+V
             for char in world.party.members:
-                if isinstance(char.shoulders, Backpack):
+                if isinstance(char, Adventurer) and isinstance(char.shoulders, Backpack):
                     char.shoulders.store(Gold(3*d6() * 10))
 
     actions = world.party.location.actions(world.party)
@@ -53,20 +54,21 @@ if __name__ == '__main__':
     ui.print_location(world.party.location)
 
     for char in world.party.members:
-        print(f"{char.handle:<18} {ui.health_bar(char, 20)}")
-        # print(char.handle)
-        # print(ui.health_bar(char, 39))
-        if '--stats' in sys.argv:
-            print(ui.statblock(char))
-            # print(f"LV:{char.gold_for_next_level:,.0f}¤")
-            print(f"LV:{char.copper_for_next_level:,.0f}¢")
-        if '--inventory' in sys.argv:
-            ui.print_inventory(char, True)
-            print('-' * 39)
-        elif '--arms' in sys.argv:
-            ui.print_inventory(char)
-            print('-' * 39)
-        print()
+        if isinstance(char, Adventurer):
+            print(f"{char.handle:<18} {ui.health_bar(char, 20)}")
+            # print(char.handle)
+            # print(ui.health_bar(char, 39))
+            if '--stats' in sys.argv:
+                print(ui.statblock(char))
+                # print(f"LV:{char.gold_for_next_level:,.0f}¤")
+                print(f"LV:{char.copper_for_next_level:,.0f}¢")
+            if '--inventory' in sys.argv:
+                ui.print_inventory(char, True)
+                print('-' * 39)
+            elif '--arms' in sys.argv:
+                ui.print_inventory(char)
+                print('-' * 39)
+            print()
 
     with game_file.open('wb') as output:
         pickle.dump(world, output)

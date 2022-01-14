@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from ..creatures import Creature
 from ..creatures.adventurers import Adventurer
 from datetime import datetime
 from random import choice
@@ -23,13 +24,13 @@ class Party:
         return self.__location
 
     @property
-    def members(self) -> list[Adventurer]:
+    def members(self) -> list[Creature]:
         return self.__members.copy()
 
-    def add(self, member: Adventurer) -> None:
+    def add(self, member: Creature) -> None:
         self.__members.append(member)
 
-    def remove(self, member: Adventurer) -> None:
+    def remove(self, member: Creature) -> None:
         self.__members.remove(member)
 
     @classmethod

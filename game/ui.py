@@ -16,6 +16,7 @@ from math import ceil, floor
 def health_bar(char: Creature, width: int) -> str:
     if not char.hit_dice > 0:
         return ''
+    # TODO hits beyond zero
     hits_taken = char.hits_taken + (0.5 if char.partial_hit else 0)
     damage = '▓' * floor(width * (char.hit_dice - hits_taken) / char.hit_dice)
     return damage + ('░' * ceil(width * hits_taken / char.hit_dice))
@@ -25,6 +26,8 @@ def print_inventory(char: Adventurer, full: bool = False):
 
     inventory = {}
 
+    if full and char.torso:
+        inventory['['] = char.torso
     if char.main_hand:
         if char.main_hand is char.off_hand:
             inventory['%'] = char.main_hand
@@ -37,8 +40,6 @@ def print_inventory(char: Adventurer, full: bool = False):
             inventory['≤'] = char.off_hand
         else:
             inventory['<'] = char.off_hand
-    if full and char.torso:
-        inventory['['] = char.torso
     if full and char.waist:
         inventory['~'] = char.waist
     if full and char.shoulders:
@@ -59,7 +60,7 @@ def print_inventory(char: Adventurer, full: bool = False):
 
 def print_inventory_item(item, prefix: str = ' '):
 
-    mass = '•' if isinstance(item, Heavy) else ' '
+    mass = '=' if isinstance(item, Heavy) else ' '
     name = type(item).__name__
     uses = ''
 
