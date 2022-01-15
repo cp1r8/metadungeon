@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from ..dice import d4, d6, d10
+from game import adventure
+from ..dice import d4, d6
 from ..objects import armour, containers, supplies, tools, valuables, weapons
 from .humans import Human
 from math import ceil
@@ -127,32 +128,23 @@ class Adventurer(Human):
 
     # TODO level up
 
-    def auto_equip(self) -> None:
-        belt = containers.Belt()
-        self.auto_fill_belt(belt)
-        self.don(belt)
-        pack = containers.Backpack()
-        self.auto_fill_pack(pack)
-        self.don(pack)
-        for item in self.random_armour(d6()):
-            self.don(item)
-        for item in self.random_primary_weapons(d6()):
-            self.hold(item)
-
-    def auto_fill_belt(self, belt: containers.Belt) -> None:
-        skin = containers.Waterskin()
-        skin.store(supplies.Water(containers.Waterskin.CAPACITY))
-        belt.store(skin)
-
-    def auto_fill_pack(self, pack: containers.Backpack) -> None:
-        for item in self.random_essentials(d6()):
-            pack.store(item)
-        for item in self.random_light_source(d6()):
-            pack.store(item)
-        for item in self.random_adventuring_gear(d6()):
-            pack.store(item)
-        for item in self.random_extra_gear(d6()):
-            pack.store(item)
+    @classmethod
+    def random(cls, level: int, auto_equip: bool) -> 'Adventurer':
+        def random_class(roll: int) -> type:
+            if roll <= 2:
+                return Fighter
+            if roll <= 3:
+                return Muser
+            return Thief
+        if cls is Adventurer and level > 0:
+            cls = random_class(d4())
+        adventurer = cls(*(sum(3*d6) for _ in range(6)), level=level)
+        if auto_equip:
+            adventurer.__auto_equip()
+            # TODO TT U+V
+        else:
+            adventurer.__belt_and_money()
+        return adventurer
 
     def random_adventuring_gear(self, roll: int) -> list:
         if roll <= 3:
@@ -186,6 +178,21 @@ class Adventurer(Human):
             return [supplies.Rope(supplies.Rope.ITEMS_PER_SLOT)]
         return [containers.LargeSack()]
 
+    def random_fill_belt(self, belt: containers.Belt) -> None:
+        skin = containers.Waterskin()
+        skin.store(supplies.Water(containers.Waterskin.CAPACITY))
+        belt.store(skin)
+
+    def random_fill_pack(self, pack: containers.Backpack) -> None:
+        for item in self.random_essentials(d6()):
+            pack.store(item)
+        for item in self.random_light_source(d6()):
+            pack.store(item)
+        for item in self.random_adventuring_gear(d6()):
+            pack.store(item)
+        for item in self.random_extra_gear(d6()):
+            pack.store(item)
+
     def random_light_source(self, roll: int):
         if roll <= 3:
             return [supplies.Torches(supplies.Torches.ITEMS_PER_SLOT)]
@@ -204,19 +211,26 @@ class Adventurer(Human):
             return [weapons.Staff()]
         return [weapons.Dagger()]
 
-    @classmethod
-    def random(cls, level: int) -> 'Adventurer':
-        if cls is Adventurer and level > 0:
-            cls = cls.__random_class(d4())
-        return cls(*(sum(3*d6) for _ in range(6)), level=level)
+    def random_starting_funds(self, roll: int) -> list:
+        return [valuables.Gold(roll * 10)]
 
-    @classmethod
-    def __random_class(cls, roll: int) -> type:
-        if roll <= 2:
-            return Fighter
-        if roll <= 3:
-            return Muser
-        return Thief
+    def __auto_equip(self) -> None:
+        belt = containers.Belt()
+        self.random_fill_belt(belt)
+        self.don(belt)
+        pack = containers.Backpack()
+        self.random_fill_pack(pack)
+        self.don(pack)
+        for item in self.random_armour(d6()):
+            self.don(item)
+        for item in self.random_primary_weapons(d6()):
+            self.hold(item)
+
+    def __belt_and_money(self) -> None:
+        belt = containers.Belt()
+        for item in self.random_starting_funds(sum(3*d6)):
+            belt.store(item)
+        self.don(belt)
 
 
 class Fighter(Adventurer):
@@ -237,21 +251,33 @@ class Fighter(Adventurer):
 
     @property
     def experience_for_next_level(self) -> int:
-        return self.XP_NEXT_LV[min(self.level, 9) - 1] if self.level < 15 else 0
+        return self.XP_NEXT_LV[min(self.level, 9) - 1] if self.level < 14 else 0
 
     @property
     def hit_dice(self) -> int:
-        if self.level < 10:
+        if self.level <= 9:
             return self.level
-        return 9 + ((self.level - 10) // 2)
+        return 9 + ((self.level - 9) // 2)
 
     @property
     def hit_die_modifier(self) -> int:
-        if self.level < 2:
+        if self.level == 1:
             return +1
-        if self.level < 10:
+        if self.level <= 9:
             return +0
         return +2 * ((self.level + 1) % 2)
+
+    @property
+    def morale_rating(self) -> int:
+        if self.level < 4:
+            return super().morale_rating
+        if self.level < 7:
+            return super().morale_rating + 1
+        if self.level < 10:
+            return super().morale_rating + 2
+        if self.level < 13:
+            return super().morale_rating + 3
+        return super().morale_rating + 4
 
     @property
     def prefix(self) -> str:
@@ -269,11 +295,6 @@ class Fighter(Adventurer):
             return super().save_target_value - 6
         return super().save_target_value - 7
 
-    def auto_fill_belt(self, belt: containers.Belt) -> None:
-        super().auto_fill_belt(belt)
-        for item in self.random_secondary_weapons(d6()):
-            belt.store(item)
-
     def random_armour(self, roll: int) -> list:
         if roll <= 1:
             return []
@@ -282,6 +303,11 @@ class Fighter(Adventurer):
         if roll <= 5:
             return [armour.Chain()]
         return [armour.Plate()]
+
+    def random_fill_belt(self, belt: containers.Belt) -> None:
+        super().random_fill_belt(belt)
+        for item in self.random_secondary_weapons(d6()):
+            belt.store(item)
 
     def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:
@@ -339,7 +365,7 @@ class Muser(Adventurer):
 
     @property
     def experience_for_next_level(self) -> int:
-        return self.XP_NEXT_LV[min(self.level, 9) - 1] if self.level < 15 else 0
+        return self.XP_NEXT_LV[min(self.level, 9) - 1] if self.level < 14 else 0
 
     @property
     def hit_dice(self) -> int:
@@ -354,6 +380,14 @@ class Muser(Adventurer):
         return +1 * (self.level % 3)
 
     @property
+    def morale_rating(self) -> int:
+        if self.level < 6:
+            return super().morale_rating
+        if self.level < 11:
+            return super().morale_rating + 1
+        return super().morale_rating + 2
+
+    @property
     def prefix(self) -> str:
         return f"M{self.level:d}"
 
@@ -364,12 +398,6 @@ class Muser(Adventurer):
         if self.level < 11:
             return super().save_target_value - 2
         return super().save_target_value - 5
-
-    def auto_fill_belt(self, belt: containers.Belt) -> None:
-        super().auto_fill_belt(belt)
-        for item in self.random_compound(d6()):
-            belt.store(item)
-        # TODO codex and V1 algorithm
 
     def random_compound(self, roll: int) -> list:
         if roll <= 1:
@@ -383,6 +411,12 @@ class Muser(Adventurer):
         if roll <= 5:
             return [containers.Vial.of(supplies.Poison())]
         return [containers.Vial.of(supplies.Smoke())]
+
+    def random_fill_belt(self, belt: containers.Belt) -> None:
+        super().random_fill_belt(belt)
+        for item in self.random_compound(d6()):
+            belt.store(item)
+        # TODO codex and V1 algorithm
 
     def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:
@@ -408,7 +442,7 @@ class Thief(Adventurer):
 
     @property
     def experience_for_next_level(self) -> int:
-        return self.XP_NEXT_LV[min(self.level, 9) - 1] if self.level < 15 else 0
+        return self.XP_NEXT_LV[min(self.level, 9) - 1] if self.level < 14 else 0
 
     @property
     def hit_dice(self) -> int:
@@ -419,6 +453,16 @@ class Thief(Adventurer):
         if self.level < 9:
             return (self.level + 1) % 2
         return +2 * ((self.level + 1) % 2)
+
+    @property
+    def morale_rating(self) -> int:
+        if self.level < 5:
+            return super().morale_rating
+        if self.level < 9:
+            return super().morale_rating + 1
+        if self.level < 13:
+            return super().morale_rating + 2
+        return super().morale_rating + 3
 
     @property
     def prefix(self) -> str:
@@ -434,19 +478,19 @@ class Thief(Adventurer):
             return super().save_target_value - 4
         return super().save_target_value - 6
 
-    def auto_fill_belt(self, belt: containers.Belt) -> None:
-        super().auto_fill_belt(belt)
-        belt.store(weapons.Dagger())
-
-    def auto_fill_pack(self, pack: containers.Backpack) -> None:
-        super().auto_fill_pack(pack)
-        for item in self.random_specialist_gear(d6()):
-            pack.store(item)
-
     def random_armour(self, roll: int) -> list:
         if roll <= 3:
             return []
         return [armour.Leather()]
+
+    def random_fill_belt(self, belt: containers.Belt) -> None:
+        super().random_fill_belt(belt)
+        belt.store(weapons.Dagger())
+
+    def random_fill_pack(self, pack: containers.Backpack) -> None:
+        super().random_fill_pack(pack)
+        for item in self.random_specialist_gear(d6()):
+            pack.store(item)
 
     def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from game import ui
-from game.adventure import Party, World
+from game.adventure import World
 from game.adventure.underground import Dungeon
 from game.creatures.adventurers import Adventurer
 from game.dice import d4, d6
@@ -20,40 +20,40 @@ if __name__ == '__main__':
     if game_file.exists() and '--reset' not in sys.argv:
         with game_file.open('rb') as input:
             world = pickle.load(input)
+            party = world.parties[0]
     else:
 
+        world = World()
         dungeon = Dungeon()
 
-        if '--expert' in sys.argv:
-            party = Party.expert(dungeon, d4() + 4)
-        elif '--funnel' in sys.argv:
-            party = Party.funnel(dungeon, sum(4*d4) + 4)
+        if '--no-equip' in sys.argv:
+            # TODO start in town
+            auto_equip = False
         else:
-            party = Party.basic(dungeon, d4() + 4)
+            auto_equip = True
 
-        world = World(party)
+        if '--basic' in sys.argv:
+            party = world.basic_party(dungeon, d4() + 4, auto_equip)
+        elif '--expert' in sys.argv:
+            party = world.expert_party(dungeon, d4() + 4, auto_equip)
+        else:
+            party = world.funnel_party(dungeon, sum(4*d4) + 4, auto_equip)
 
-        if '--hit' in sys.argv:
-            for char in world.party.members:
-                char.hit(1)
-
-        if '--loot' in sys.argv:
-            # TODO TT U+V
-            for char in world.party.members:
-                if isinstance(char, Adventurer) and isinstance(char.shoulders, Backpack):
-                    char.shoulders.store(Gold(3*d6() * 10))
-
-    actions = world.party.location.actions(world.party)
+    actions = party.location.actions(party)
 
     for arg in sys.argv:
         if arg in actions:
-            getattr(world.party.location, arg)(world.party)
+            getattr(party.location, arg)(party)
             break
 
-    print(world.time)
-    ui.print_location(world.party.location)
+    if '--hit' in sys.argv:
+        for char in party.members:
+            char.hit(1)
 
-    for char in world.party.members:
+    print(world.time)
+    ui.print_location(party.location)
+
+    for char in party.members:
         if isinstance(char, Adventurer):
             print(f"{char.handle:<18} {ui.health_bar(char, 20)}")
             # print(char.handle)
@@ -74,5 +74,5 @@ if __name__ == '__main__':
         pickle.dump(world, output)
 
     if '--actions' in sys.argv:
-        actions = world.party.location.actions(world.party)
+        actions = party.location.actions(party)
         print(' / '.join(actions))
