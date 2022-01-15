@@ -32,12 +32,12 @@ def print_inventory(char: Adventurer, full: bool = False):
         if char.main_hand is char.off_hand:
             inventory['%'] = char.main_hand
         elif isinstance(char.main_hand, TwoHanded):
-            inventory['≥'] = char.main_hand
+            inventory['/'] = char.main_hand
         else:
             inventory['>'] = char.main_hand
     if char.off_hand and char.off_hand is not char.main_hand:
         if isinstance(char.off_hand, TwoHanded):
-            inventory['≤'] = char.off_hand
+            inventory['\\'] = char.off_hand
         else:
             inventory['<'] = char.off_hand
     if full and char.waist:
@@ -69,7 +69,7 @@ def print_inventory_item(item, prefix: str = ' '):
     elif isinstance(item, Shield):
         name = f"AC{-item.armour_class_modifier:+d} {name}"
     elif isinstance(item, Weapon) and \
-            (not isinstance(item, ImprovisedWeapon) or prefix in ('%', '>', '≥')):
+            (not isinstance(item, ImprovisedWeapon) or prefix in ('%', '>', '/')):
         if isinstance(item, Missile):
             name = f"@{item.ranges[0]} {name}"
         name = f"D{item.damage} {name}"
@@ -109,11 +109,11 @@ def print_location(location: Location):
     bearing = ''
     if (isinstance(location, Dungeon)):
         if location.flee:
-            bearing = f"{location.y}-? FLEE!"
+            bearing = f"{location.z}-? FLEE!"
         elif location.lost:
-            bearing = f"{location.y}-? LOST!"
+            bearing = f"{location.z}-? LOST!"
         else:
-            bearing = f"{location.y}-{location.x}"
+            bearing = f"{location.z}-{location.y}"
         if isinstance(location.area, Dungeon.Door):
             if location.area.locked:
                 area = 'Door: locked'

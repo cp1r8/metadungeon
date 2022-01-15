@@ -64,15 +64,17 @@ class Dungeon(Location):
         def up(self) -> int:
             return self.__up
 
-    MAXX = 10
+    # MAXX = 10
     MAXY = 10
+    MAXZ = 10
 
     def __init__(self) -> None:
         self.__area = self.Stairway(up=1)
         self.__flee = False
         self.__lost = False
-        self.__x = 1
+        # self.__x = 1
         self.__y = 1
+        self.__z = 1
 
     @property
     def area(self) -> Area:
@@ -86,38 +88,42 @@ class Dungeon(Location):
     def lost(self) -> bool:
         return self.__lost
 
-    @property
-    def x(self) -> int:
-        return self.__x
+    # @property
+    # def x(self) -> int:
+    #     return self.__x
 
     @property
     def y(self) -> int:
         return self.__y
+
+    @property
+    def z(self) -> int:
+        return self.__z
 
     def actions(self, party: Party) -> list:
         actions = []
         if self.lost:
             actions.append('wander')
         else:
-            if self.x > 1:
-                actions.append('backtrack')
-            if self.x < self.MAXX:
+            if self.y > 1:
+                actions.append('back')
+            if self.y < self.MAXY:
                 if isinstance(self.area, self.Door):
                     if self.area.open:
-                        actions.append('advance')
+                        actions.append('forward')
                 elif isinstance(self.area, self.Passage):
                     if self.area.ahead:
-                        actions.append('advance')
+                        actions.append('forward')
                 else:
-                    actions.append('advance')
+                    actions.append('forward')
         if isinstance(self.area, self.Passage):
             if self.area.branch:
-                actions.append('divert')
+                actions.append('side')
         if isinstance(self.area, self.Stairway):
             if self.area.down > 0:
-                actions.append('descend')
+                actions.append('down')
             if self.area.up > 0:
-                actions.append('ascend')
+                actions.append('up')
         # TODO flee
         # TODO force (door)
         # TODO listen (door) ???
@@ -126,49 +132,49 @@ class Dungeon(Location):
         # TODO unlock (door) -- key or Lockpicks
         return actions
 
-    def advance(self, party: Party) -> Location:
-        if 'advance' not in self.actions(party):
+    def forward(self, party: Party) -> Location:
+        if 'forward' not in self.actions(party):
             raise RuntimeError('Cannot advance')
-        self.__x += 1
+        self.__y += 1
         self.__area = self.__discover(next=isinstance(self.area, self.Door))
         return self
 
-    def ascend(self, party: Party) -> Location:
-        if 'ascend' not in self.actions(party):
+    def up(self, party: Party) -> Location:
+        if 'up' not in self.actions(party):
             raise RuntimeError('Cannot ascend')
-        if self.y <= 1:
+        if self.z <= 1:
             exit()  # TODO return to town
         self.__area = self.Stairway(down=1)
         if not self.flee:
             self.__lost = False
-        self.__x = self.MAXX
-        self.__y -= 1
+        self.__y = self.MAXY
+        self.__z -= 1
         return self
 
-    def backtrack(self, party: Party, distance: int = 1) -> Location:
-        if 'backtrack' not in self.actions(party):
+    def back(self, party: Party, distance: int = 1) -> Location:
+        if 'back' not in self.actions(party):
             raise RuntimeError('Cannot backtrack')
         # TODO INT bonus?
         roll = d20()
-        if roll < self.x:
-            self.__x = roll
+        if roll < self.y:
+            self.__y = roll
             self.__area = self.__discover()
             self.__lost = True
         else:
-            self.__x = max(1, self.x - distance)
+            self.__y = max(1, self.y - distance)
             self.__area = self.__discover()
         return self
 
-    def descend(self, party: Party) -> Location:
-        if 'descend' not in self.actions(party):
+    def down(self, party: Party) -> Location:
+        if 'down' not in self.actions(party):
             raise RuntimeError('Cannot descend')
         self.__area = self.Stairway(up=1)
-        self.__x = randint(1, self.MAXX) if self.lost else 1
-        self.__y += 1
+        self.__y = randint(1, self.MAXY) if self.lost else 1
+        self.__z += 1
         return self
 
-    def divert(self, party: Party) -> Location:
-        if 'divert' not in self.actions(party):
+    def side(self, party: Party) -> Location:
+        if 'side' not in self.actions(party):
             raise RuntimeError('Cannot divert')
         self.__area = self.__discover(next=True)
         return self
@@ -177,21 +183,21 @@ class Dungeon(Location):
         if 'wander' not in self.actions(party):
             raise RuntimeError('Cannot wander')
         if isinstance(self.area, self.Passage) and self.area.ahead and not self.area.branch:
-            self.__x = randint(1, self.MAXX)
+            self.__y = randint(1, self.MAXY)
         else:
-            self.__x -= 1
+            self.__y -= 1
         self.__area = self.__discover()
-        if self.x <= 1:
+        if self.y <= 1:
             self.__lost = False
         return self
 
     def __discover(self, next: bool = False) -> Area:
-        if self.x <= 1:
+        if self.y <= 1:
             return self.Stairway(up=1)
-        elif self.x < self.MAXX:
+        elif self.y < self.MAXY:
             # TODO tunable probabilities
             return self.__discoverArea(d4() if next else d6())
-        elif self.y < self.MAXY:
+        elif self.z < self.MAXZ:
             return self.Stairway(down=1)
         else:
             return self.Passage(ahead=False)  #  dead end
