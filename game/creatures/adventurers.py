@@ -129,23 +129,32 @@ class Adventurer(Human):
 
     def auto_equip(self) -> None:
         belt = containers.Belt()
+        self.auto_fill_belt(belt)
         self.don(belt)
-        skin = containers.Waterskin()
-        belt.store(skin)
-        skin.store(supplies.Water(containers.Waterskin.CAPACITY))
         pack = containers.Backpack()
+        self.auto_fill_pack(pack)
         self.don(pack)
-        pack.store(supplies.Rations(supplies.Rations.ITEMS_PER_SLOT))
-        pack.store(supplies.Sundries(supplies.Sundries.ITEMS_PER_SLOT))
-        pack.store(tools.Tinderbox())
-        for item in self.__random_light_source(d6()):
+        for item in self.random_armour(d6()):
+            self.don(item)
+        for item in self.random_primary_weapons(d6()):
+            self.hold(item)
+
+    def auto_fill_belt(self, belt: containers.Belt) -> None:
+        skin = containers.Waterskin()
+        skin.store(supplies.Water(containers.Waterskin.CAPACITY))
+        belt.store(skin)
+
+    def auto_fill_pack(self, pack: containers.Backpack) -> None:
+        for item in self.random_essentials(d6()):
             pack.store(item)
-        for item in self.__random_adventuring_gear(d6()):
+        for item in self.random_light_source(d6()):
             pack.store(item)
-        for item in self.__random_extra_gear(d6()):
+        for item in self.random_adventuring_gear(d6()):
+            pack.store(item)
+        for item in self.random_extra_gear(d6()):
             pack.store(item)
 
-    def __random_adventuring_gear(self, roll: int) -> list:
+    def random_adventuring_gear(self, roll: int) -> list:
         if roll <= 3:
             return [supplies.Rope(supplies.Rope.ITEMS_PER_SLOT)]
         if roll <= 4:
@@ -154,7 +163,17 @@ class Adventurer(Human):
             return [tools.Pole()]
         return [tools.Mallet(), supplies.Spikes(supplies.Spikes.ITEMS_PER_SLOT)]
 
-    def __random_extra_gear(self, roll: int) -> list:
+    def random_armour(self, roll: int) -> list:
+        return []
+
+    def random_essentials(self, roll: int) -> list:
+        return [
+            supplies.Rations(supplies.Rations.ITEMS_PER_SLOT),
+            supplies.Sundries(supplies.Sundries.ITEMS_PER_SLOT),
+            tools.Tinderbox(),
+        ]
+
+    def random_extra_gear(self, roll: int) -> list:
         if roll <= 1:
             return [containers.SmallSack()]
         if roll <= 2:
@@ -167,7 +186,7 @@ class Adventurer(Human):
             return [supplies.Rope(supplies.Rope.ITEMS_PER_SLOT)]
         return [containers.LargeSack()]
 
-    def __random_light_source(self, roll: int):
+    def random_light_source(self, roll: int):
         if roll <= 3:
             return [supplies.Torches(supplies.Torches.ITEMS_PER_SLOT)]
         if roll <= 4:
@@ -177,6 +196,13 @@ class Adventurer(Human):
         lantern = tools.Lantern()
         lantern.store(supplies.Oil(lantern.capacity))
         return [lantern, containers.Flask.of(supplies.Oil())]
+
+    def random_primary_weapons(self, roll: int):
+        if roll <= 2:
+            return [weapons.Club()]
+        if roll <= 4:
+            return [weapons.Staff()]
+        return [weapons.Dagger()]
 
     @classmethod
     def random(cls, level: int) -> 'Adventurer':
@@ -243,17 +269,12 @@ class Fighter(Adventurer):
             return super().save_target_value - 6
         return super().save_target_value - 7
 
-    def auto_equip(self) -> None:
-        super().auto_equip()
-        for item in self.__random_armour(d6()):
-            self.don(item)
-        for item in self.__random_primary_weapons(d10()):
-            self.hold(item)
-        if isinstance(self.waist, containers.Belt):
-            for item in self.__random_secondary_weapons(d6()):
-                self.waist.store(item)
+    def auto_fill_belt(self, belt: containers.Belt) -> None:
+        super().auto_fill_belt(belt)
+        for item in self.random_secondary_weapons(d6()):
+            belt.store(item)
 
-    def __random_armour(self, roll: int) -> list:
+    def random_armour(self, roll: int) -> list:
         if roll <= 1:
             return []
         if roll <= 3:
@@ -262,7 +283,7 @@ class Fighter(Adventurer):
             return [armour.Chain()]
         return [armour.Plate()]
 
-    def __random_primary_weapons(self, roll: int) -> list:
+    def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:
             return [weapons.Axe(), armour.Shield()]
         if roll <= 2:
@@ -274,12 +295,13 @@ class Fighter(Adventurer):
         if roll <= 5:
             return [weapons.Sword(), armour.Shield()]
         if roll <= 6:
-            bow = weapons.Crossbow()
-            bow.store(supplies.Quarrels(bow.capacity))
-            return [bow]
-        if roll <= 7:
             bow = weapons.Longbow()
             bow.store(supplies.Arrows(bow.capacity))
+            return [bow]
+        # TODO d10 for remainder ???
+        if roll <= 7:
+            bow = weapons.Crossbow()
+            bow.store(supplies.Quarrels(bow.capacity))
             return [bow]
         if roll <= 8:
             return [weapons.Battleaxe()]
@@ -287,7 +309,7 @@ class Fighter(Adventurer):
             return [weapons.Greatsword()]
         return [weapons.Polearm()]
 
-    def __random_secondary_weapons(self, roll: int) -> list:
+    def random_secondary_weapons(self, roll: int) -> list:
         if roll <= 1:
             return []
         if roll <= 2:
@@ -343,16 +365,13 @@ class Muser(Adventurer):
             return super().save_target_value - 2
         return super().save_target_value - 5
 
-    def auto_equip(self) -> None:
-        super().auto_equip()
-        for item in self.__random_weapon(d6()):
-            self.hold(item)
-        if isinstance(self.waist, containers.Belt):
-            for item in self.__random_compound(d6()):
-                self.waist.store(item)
-        # TODO codex and L1 algorithm
+    def auto_fill_belt(self, belt: containers.Belt) -> None:
+        super().auto_fill_belt(belt)
+        for item in self.random_compound(d6()):
+            belt.store(item)
+        # TODO codex and V1 algorithm
 
-    def __random_compound(self, roll: int) -> list:
+    def random_compound(self, roll: int) -> list:
         if roll <= 1:
             return [containers.Flask.of(supplies.Liquor())]
         if roll <= 2:
@@ -365,7 +384,7 @@ class Muser(Adventurer):
             return [containers.Vial.of(supplies.Poison())]
         return [containers.Vial.of(supplies.Smoke())]
 
-    def __random_weapon(self, roll: int) -> list:
+    def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:
             return [weapons.Staff()]
         if roll <= 5:
@@ -415,31 +434,21 @@ class Thief(Adventurer):
             return super().save_target_value - 4
         return super().save_target_value - 6
 
-    def auto_equip(self) -> None:
-        super().auto_equip()
-        for item in self.__random_armour(d6()):
-            self.don(item)
-        for item in self.__random_weapon(d6()):
-            self.hold(item)
-        if isinstance(self.shoulders, containers.Backpack):
-            for item in self.__random_specialist_gear(d6()):
-                self.shoulders.store(item)
-        if isinstance(self.waist, containers.Belt):
-            self.waist.store(weapons.Dagger())
+    def auto_fill_belt(self, belt: containers.Belt) -> None:
+        super().auto_fill_belt(belt)
+        belt.store(weapons.Dagger())
 
-    def __random_armour(self, roll: int) -> list:
+    def auto_fill_pack(self, pack: containers.Backpack) -> None:
+        super().auto_fill_pack(pack)
+        for item in self.random_specialist_gear(d6()):
+            pack.store(item)
+
+    def random_armour(self, roll: int) -> list:
         if roll <= 3:
             return []
         return [armour.Leather()]
 
-    def __random_specialist_gear(self, roll: int) -> list:
-        if roll <= 1:
-            return [containers.DrySack()]
-        if roll <= 3:
-            return [tools.Grapnel()]
-        return [tools.Lockpicks()]
-
-    def __random_weapon(self, roll: int) -> list:
+    def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:
             return [weapons.Club()]
         if roll <= 4:
@@ -449,3 +458,10 @@ class Thief(Adventurer):
         bow = weapons.Shortbow()
         bow.store(supplies.Arrows(bow.capacity))
         return [bow]
+
+    def random_specialist_gear(self, roll: int) -> list:
+        if roll <= 1:
+            return [containers.DrySack()]
+        if roll <= 3:
+            return [tools.Grapnel()]
+        return [tools.Lockpicks()]

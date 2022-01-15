@@ -110,12 +110,12 @@ class Dungeon(Location):
             if self.y < self.MAXY:
                 if isinstance(self.area, self.Door):
                     if self.area.open:
-                        actions.append('forward')
+                        actions.append('forth')
                 elif isinstance(self.area, self.Passage):
                     if self.area.ahead:
-                        actions.append('forward')
+                        actions.append('forth')
                 else:
-                    actions.append('forward')
+                    actions.append('forth')
         if isinstance(self.area, self.Passage):
             if self.area.branch:
                 actions.append('side')
@@ -132,8 +132,8 @@ class Dungeon(Location):
         # TODO unlock (door) -- key or Lockpicks
         return actions
 
-    def forward(self, party: Party) -> Location:
-        if 'forward' not in self.actions(party):
+    def forth(self, party: Party) -> Location:
+        if 'forth' not in self.actions(party):
             raise RuntimeError('Cannot advance')
         self.__y += 1
         self.__area = self.__discover(next=isinstance(self.area, self.Door))
