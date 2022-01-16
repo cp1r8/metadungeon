@@ -310,30 +310,36 @@ class Fighter(Adventurer):
             belt.store(item)
 
     def random_primary_weapons(self, roll: int) -> list:
-        if roll <= 1:
-            return [weapons.Axe(), armour.Shield()]
-        if roll <= 2:
-            return [weapons.Maul(), armour.Shield()]
         if roll <= 3:
-            return [weapons.Shortsword(), armour.Shield()]
-        if roll <= 4:
-            return [weapons.Spear(), armour.Shield()]
-        if roll <= 5:
+            roll = d6()
+            if roll <= 1:
+                return [weapons.Javelin()]
+            if roll <= 2:
+                bow = weapons.Longbow()
+                bow.store(supplies.Arrows(bow.capacity))
+                return [bow]
+            if roll <= 3:
+                bow = weapons.Crossbow()
+                bow.store(supplies.Quarrels(bow.capacity))
+                return [bow]
+            if roll <= 4:
+                return [weapons.Battleaxe()]
+            if roll <= 5:
+                return [weapons.Greatsword()]
+            return [weapons.Polearm()]
+        else:
+            roll = d6()
+            if roll <= 1:
+                return [weapons.Dagger(), armour.Shield()]
+            if roll <= 2:
+                return [weapons.Axe(), armour.Shield()]
+            if roll <= 3:
+                return [weapons.Maul(), armour.Shield()]
+            if roll <= 4:
+                return [weapons.Shortsword(), armour.Shield()]
+            if roll <= 5:
+                return [weapons.Spear(), armour.Shield()]
             return [weapons.Sword(), armour.Shield()]
-        if roll <= 6:
-            bow = weapons.Longbow()
-            bow.store(supplies.Arrows(bow.capacity))
-            return [bow]
-        # TODO d10 for remainder ???
-        if roll <= 7:
-            bow = weapons.Crossbow()
-            bow.store(supplies.Quarrels(bow.capacity))
-            return [bow]
-        if roll <= 8:
-            return [weapons.Battleaxe()]
-        if roll <= 9:
-            return [weapons.Greatsword()]
-        return [weapons.Polearm()]
 
     def random_secondary_weapons(self, roll: int) -> list:
         if roll <= 1:
