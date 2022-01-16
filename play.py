@@ -52,6 +52,8 @@ if __name__ == '__main__':
 
     print(world.time)
     ui.print_location(party.location)
+    print('=' * 39)
+    print()
 
     for char in party.members:
         if isinstance(char, Adventurer):

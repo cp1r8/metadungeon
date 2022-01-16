@@ -14,15 +14,17 @@ from math import ceil, floor
 
 
 def health_bar(char: Creature, width: int) -> str:
-    if not char.hit_dice > 0:
-        return ''
-    if char.hits_taken > char.hit_dice and not char.partial_hit:
-        wounds = char.hits_taken - char.hit_dice
-        survive = '░' * floor(width * (char.hit_dice - wounds) / char.hit_dice)
-        return survive + ('▓' * ceil(width * wounds / char.hit_dice))
-    hits_taken = char.hits_taken + (0.5 if char.partial_hit else 0)
-    damage = '▓' * floor(width * (char.hit_dice - hits_taken) / char.hit_dice)
-    return damage + ('░' * ceil(width * hits_taken / char.hit_dice))
+    if char.hit_dice == 0:
+        return ('·' * width) if char.hits_taken else ('█' * width)
+    if char.hits_taken < char.hit_dice:
+        hits = char.hits_taken + (0.5 if char.partial_hit else 0)
+        health = '█' * floor(width * (char.hit_dice - hits) / char.hit_dice)
+        return health + ('▒' * ceil(width * hits / char.hit_dice))
+    wounds = char.hits_taken - char.hit_dice
+    if wounds >= char.hit_dice:
+        return '·' * width
+    survive = '▒' * floor(width * (char.hit_dice - wounds) / char.hit_dice)
+    return survive + ('·' * ceil(width * wounds / char.hit_dice))
 
 
 def print_inventory(char: Adventurer, full: bool = False):
@@ -145,8 +147,6 @@ def print_location(location: Location):
         else:
             area = type(location.area).__name__
     print(f"{type(location).__name__} {bearing} {area}")
-    print('-' * 39)
-    print()
 
 
 def statblock(char: Creature):
