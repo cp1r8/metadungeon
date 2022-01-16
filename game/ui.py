@@ -16,7 +16,10 @@ from math import ceil, floor
 def health_bar(char: Creature, width: int) -> str:
     if not char.hit_dice > 0:
         return ''
-    # TODO hits beyond zero
+    if char.hits_taken > char.hit_dice and not char.partial_hit:
+        wounds = char.hits_taken - char.hit_dice
+        survive = '░' * floor(width * (char.hit_dice - wounds) / char.hit_dice)
+        return survive + ('▓' * ceil(width * wounds / char.hit_dice))
     hits_taken = char.hits_taken + (0.5 if char.partial_hit else 0)
     damage = '▓' * floor(width * (char.hit_dice - hits_taken) / char.hit_dice)
     return damage + ('░' * ceil(width * hits_taken / char.hit_dice))

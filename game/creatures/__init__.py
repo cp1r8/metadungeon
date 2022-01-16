@@ -88,7 +88,7 @@ class Creature:
 
     @property
     def hits_remaining(self) -> int:
-        return self.hit_dice - self.hits_taken - (1 if self.partial_hit else 0)
+        return max(0, self.hit_dice - self.hits_taken)
 
     @property
     def hits_taken(self) -> int:
@@ -127,6 +127,7 @@ class Creature:
                     self.__partial_hit = True
                 return False
             self.__hits_taken += 1
+        self.__partial_hit = False
         self.__hits_taken += damage
         return True
 
