@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from ..dice import d6, d20
-from ..objects import DualHanded, Holdable, Wearable
+from ..objects import armour, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
 
 
@@ -59,8 +59,6 @@ class Creature:
     ML = 6
     AT = []
     TT = []
-
-    # TODO attacks
 
     def __init__(self) -> None:
         self.__hits_taken = 0
@@ -170,8 +168,34 @@ class Humanoid(Creature):
         self.__waist = None
 
     @property
+    def armour_class(self) -> int:
+        if isinstance(self.torso, armour.Armour):
+            armour_class = self.torso.armour_class
+        else:
+            armour_class = self.base_armour_class
+        if isinstance(self.off_hand, armour.Shield):
+            armour_class += self.off_hand.armour_class_modifier
+        elif isinstance(self.main_hand, armour.Shield):
+            armour_class += self.main_hand.armour_class_modifier
+        return armour_class
+
+    @property
+    def base_armour_class(self) -> int:
+        return super().armour_class
+
+    @property
+    def base_movement_rate(self) -> int:
+        return super().movement_rate
+
+    @property
     def main_hand(self):
         return self.__main_hand
+
+    @property
+    def movement_rate(self) -> int:
+        if isinstance(self.torso, armour.Armour):
+            return self.torso.movement_rate
+        return self.base_movement_rate
 
     @property
     def off_hand(self):

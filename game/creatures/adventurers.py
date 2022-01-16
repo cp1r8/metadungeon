@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from game import adventure
 from ..dice import d4, d6
 from ..objects import armour, containers, supplies, tools, valuables, weapons
 from .humans import Human
-from math import ceil
 
 
 class Adventurer(Human):
@@ -43,18 +41,6 @@ class Adventurer(Human):
         self.__con = constitution
         self.__cha = charisma
         self.__lvl = level
-
-    @property
-    def armour_class(self) -> int:
-        if isinstance(self.torso, armour.Armour):
-            armour_class = self.torso.armour_class
-        else:
-            armour_class = self.base_armour_class
-        if isinstance(self.off_hand, armour.Shield):
-            armour_class += self.off_hand.armour_class_modifier
-        elif isinstance(self.main_hand, armour.Shield):
-            armour_class += self.main_hand.armour_class_modifier
-        return armour_class
 
     @property
     def attack_target_value(self) -> int:
@@ -111,12 +97,6 @@ class Adventurer(Human):
     @property
     def morale_rating(self) -> int:
         return self.ML_BY_CHA[self.__cha - 3]
-
-    @property
-    def movement_rate(self) -> int:
-        if isinstance(self.torso, armour.Armour):
-            return self.torso.movement_rate
-        return self.base_movement_rate
 
     @property
     def prefix(self) -> str:
