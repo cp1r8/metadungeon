@@ -40,8 +40,13 @@ class World:
     EPOCH = datetime(1001, 1, 1, 0, 0)
 
     def __init__(self, time: datetime = EPOCH) -> None:
+        self.__locations = []
         self.__parties = []
         self.__time = time
+
+    @property
+    def locations(self) -> list[Location]:
+        return self.__locations.copy()
 
     @property
     def parties(self) -> list[Party]:
@@ -62,14 +67,17 @@ class World:
         ])
 
     def disband(self, party: Party) -> None:
-        self.parties.remove(party)
+        self.__parties.remove(party)
 
-    def funnel_party(self, location: Location, members: int, auto_equip: bool = True) -> Party:
-        return self.assemble(location, [
-            Adventurer.random(0, auto_equip) for _ in range(0, members)
-        ])
+    def establish(self, location: Location) -> None:
+        self.__locations.append(location)
 
     def expert_party(self, location: Location, members: int, auto_equip: bool = True) -> Party:
         return self.assemble(location, [
             Adventurer.random(d6() + 3, auto_equip) for _ in range(0, members)
+        ])
+
+    def funnel_party(self, location: Location, members: int, auto_equip: bool = True) -> Party:
+        return self.assemble(location, [
+            Adventurer.random(0, auto_equip) for _ in range(0, members)
         ])

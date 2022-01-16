@@ -25,6 +25,7 @@ if __name__ == '__main__':
 
         world = World()
         dungeon = Dungeon()
+        world.establish(dungeon)
 
         if '--no-equip' in sys.argv:
             # TODO start in town
@@ -39,16 +40,17 @@ if __name__ == '__main__':
         else:
             party = world.funnel_party(dungeon, sum(4*d4) + 4, auto_equip)
 
+    # for testing
+    if '--hit' in sys.argv:
+        for char in party.members:
+            char.hit(1)
+
     actions = party.location.actions(party)
 
     for arg in sys.argv:
         if arg in actions:
             getattr(party.location, arg)(party)
             break
-
-    if '--hit' in sys.argv:
-        for char in party.members:
-            char.hit(1)
 
     print(world.time)
     ui.print_location(party.location)
