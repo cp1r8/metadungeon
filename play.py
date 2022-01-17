@@ -5,9 +5,7 @@ from game.adventure import World
 from game.adventure.underground import Dungeon
 from game.creatures import Humanoid
 from game.creatures.adventurers import Adventurer
-from game.dice import d4, d6
-from game.objects.containers import Backpack
-from game.objects.valuables import Gold
+from game.dice import d3, d4, d6
 from pathlib import Path
 
 import pickle
@@ -35,16 +33,27 @@ if __name__ == '__main__':
             auto_equip = True
 
         if '--basic' in sys.argv:
-            party = world.basic_party(dungeon, d4() + 4, auto_equip)
+            party = world.assemble(dungeon, [
+                Adventurer.random(d3(), auto_equip) for _ in range(0, d4() + 4)
+            ])
         elif '--expert' in sys.argv:
-            party = world.expert_party(dungeon, d4() + 4, auto_equip)
+            party = world.assemble(dungeon, [
+                Adventurer.random(d6() + 3, auto_equip) for _ in range(0, d4() + 4)
+            ])
+        elif '--funnel' in sys.argv:
+            party = world.assemble(dungeon, [
+                Adventurer.random(0, auto_equip) for _ in range(0, sum(4*d4) + 4)
+            ])
         else:
-            party = world.funnel_party(dungeon, sum(4*d4) + 4, auto_equip)
+            party = world.assemble(dungeon, [
+                Adventurer.random(1, auto_equip) for _ in range(0, sum(2*d4) + 4)
+            ])
 
     # for testing
     if '--hit' in sys.argv:
+        damage = sys.argv.count('--hit')
         for char in party.members:
-            char.hit(1)
+            char.hit(damage)
 
     actions = party.location.actions(party)
 

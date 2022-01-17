@@ -145,6 +145,35 @@ class Creature:
         return True
 
 
+class FlyingCreature(Creature):
+
+    MV_FLY = 0
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.__flying = False
+
+    @property
+    def fly_movement_rate(self) -> int:
+        return int(self.MV_FLY)
+
+    @property
+    def flying(self) -> bool:
+        return self.__flying
+
+    @property
+    def movement_rate(self) -> int:
+        if self.flying:
+            return self.fly_movement_rate
+        return super().movement_rate
+
+    def fly(self) -> None:
+        self.__flying = True
+
+    def land(self) -> None:
+        self.__flying = False
+
+
 class Humanoid(Creature):
 
     class Attack(Creature.Attack):

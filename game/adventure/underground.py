@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from . import Location, Party
+from . import Area, Location, Party
 from ..dice import d4, d6, d20
 from random import randint
 
 
 class Dungeon(Location):
 
-    class Area:
-        pass
+    # TODO door/passage trap?
 
     class Door(Area):
 
@@ -30,8 +29,6 @@ class Dungeon(Location):
         def stuck(self) -> bool:
             return self.__stuck
 
-        # TODO trap?
-
     class Passage(Area):
 
         def __init__(self, ahead: bool = False, branch: bool = False) -> None:
@@ -47,7 +44,10 @@ class Dungeon(Location):
             return self.__branch
 
     class Room(Area):
-        # TODO monster, special, trap, treasure
+        # TODO 1-2 empty, 1-in-6 treasure
+        # TODO 3-4 monster, 3-in-6 treasure
+        # TODO 5 special
+        # TODO 6 trap, 2-in-6 treasure
         pass
 
     class Stairway(Area):
@@ -132,25 +132,6 @@ class Dungeon(Location):
         # TODO unlock (door) -- key or Lockpicks
         return actions
 
-    def forth(self, party: Party) -> Location:
-        if 'forth' not in self.actions(party):
-            raise RuntimeError('Cannot advance')
-        self.__y += 1
-        self.__area = self.__discover(next=isinstance(self.area, self.Door))
-        return self
-
-    def up(self, party: Party) -> Location:
-        if 'up' not in self.actions(party):
-            raise RuntimeError('Cannot ascend')
-        if self.z <= 1:
-            exit()  # TODO return to town
-        self.__area = self.Stairway(down=1)
-        if not self.flee:
-            self.__lost = False
-        self.__y = self.MAXY
-        self.__z -= 1
-        return self
-
     def back(self, party: Party, distance: int = 1) -> Location:
         if 'back' not in self.actions(party):
             raise RuntimeError('Cannot backtrack')
@@ -173,10 +154,30 @@ class Dungeon(Location):
         self.__z += 1
         return self
 
+    def forth(self, party: Party) -> Location:
+        if 'forth' not in self.actions(party):
+            raise RuntimeError('Cannot advance')
+        self.__y += 1
+        self.__area = self.__discover(next=isinstance(self.area, self.Door))
+        return self
+
     def side(self, party: Party) -> Location:
         if 'side' not in self.actions(party):
             raise RuntimeError('Cannot divert')
         self.__area = self.__discover(next=True)
+        return self
+
+    def up(self, party: Party) -> Location:
+        if 'up' not in self.actions(party):
+            raise RuntimeError('Cannot ascend')
+        if self.z <= 1:
+            # TODO return to town
+            exit()
+        self.__area = self.Stairway(down=1)
+        if not self.flee:
+            self.__lost = False
+        self.__y = self.MAXY
+        self.__z -= 1
         return self
 
     def wander(self, party: Party) -> Location:

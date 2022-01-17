@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import Creature
+from . import Creature, FlyingCreature
 
 
 class GreenSlime(Creature):
@@ -21,5 +21,5 @@ class GreenSlime(Creature):
     # TODO immune to anything except cold and fire
 
 
-class Stirge(Creature):
+class Stirge(FlyingCreature):
     pass

@@ -2,9 +2,17 @@
 
 from ..creatures import Creature
 from ..creatures.adventurers import Adventurer
-from ..dice import d3, d6
 from datetime import datetime
-from random import choice
+
+
+class Area:
+
+    def __init__(self, contents: list = []) -> None:
+        self.__contents = contents
+
+    @property
+    def content(self) -> list:
+        return self.__contents
 
 
 class Location:
@@ -15,9 +23,10 @@ class Location:
 
 class Party:
 
+    # TODO marching order
+
     def __init__(self, location: Location, members: list[Creature] = []) -> None:
         self.__location = location
-        # TODO marching order
         self.__members = members
 
     @property
@@ -61,23 +70,8 @@ class World:
         self.__parties.append(party)
         return party
 
-    def basic_party(self, location: Location, members: int, auto_equip: bool = True) -> Party:
-        return self.assemble(location, [
-            Adventurer.random(d3(), auto_equip) for _ in range(0, members)
-        ])
-
     def disband(self, party: Party) -> None:
         self.__parties.remove(party)
 
     def establish(self, location: Location) -> None:
         self.__locations.append(location)
-
-    def expert_party(self, location: Location, members: int, auto_equip: bool = True) -> Party:
-        return self.assemble(location, [
-            Adventurer.random(d6() + 3, auto_equip) for _ in range(0, members)
-        ])
-
-    def funnel_party(self, location: Location, members: int, auto_equip: bool = True) -> Party:
-        return self.assemble(location, [
-            Adventurer.random(0, auto_equip) for _ in range(0, members)
-        ])

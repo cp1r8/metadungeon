@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from game.objects.tools import Torch
 from . import Humanoid, Person
 from ..objects import armour, weapons
 
