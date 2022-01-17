@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from game.objects import containers
 from ..dice import d6, d20
 from ..objects import armour, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
@@ -50,14 +51,15 @@ class Creature:
         def hits(self) -> bool:
             return self(d20())
 
+    AC = 9
     HD = 1
     HD_MOD = +0
-    TH = 20
-    SV = 16
-    AC = 9
-    MV = 12
-    ML = 6
     AT = []
+    TH = 20
+    MV = 12
+    SV = 16
+    ML = 6
+    XP = 0
     TT = []
 
     def __init__(self) -> None:
@@ -66,7 +68,7 @@ class Creature:
 
     @property
     def armour_class(self) -> int:
-        return int(self.AC)
+        return self.base_armour_class
 
     @property
     def attack_target_value(self) -> int:
@@ -75,6 +77,18 @@ class Creature:
     @property
     def attacks(self) -> list:
         return self.AT
+
+    @property
+    def base_armour_class(self) -> int:
+        return int(self.AC)
+
+    @property
+    def base_morale_rating(self) -> int:
+        return int(self.ML)
+
+    @property
+    def base_movement_rate(self) -> int:
+        return int(self.MV)
 
     @property
     def hit_dice(self) -> int:
@@ -94,15 +108,15 @@ class Creature:
 
     @property
     def morale_rating(self) -> int:
-        return int(self.ML)
+        return self.base_morale_rating
+
+    @property
+    def movement_rate(self) -> int:
+        return self.base_movement_rate
 
     @property
     def partial_hit(self) -> bool:
         return self.__partial_hit
-
-    @property
-    def movement_rate(self) -> int:
-        return int(self.MV)
 
     @property
     def save_target_value(self) -> int:
@@ -114,9 +128,10 @@ class Creature:
 
     def hit(self, damage: int) -> bool:
         while damage > 0 and self.hits_taken < self.hit_dice:
-            damage -= d6()
+            absorb = d6()
             if self.hits_taken == 0:
-                damage -= self.hit_die_modifier
+                absorb = max(1, absorb + self.hit_die_modifier)
+            damage -= absorb
             if damage < 0:
                 if self.partial_hit:
                     self.__hits_taken += 1
@@ -158,6 +173,9 @@ class Humanoid(Creature):
             raise TypeError()
 
     AT = [(Attack,)]
+    HANDS = []
+    TORSO = []
+    WAIST = []
 
     def __init__(self) -> None:
         super().__init__()
@@ -166,26 +184,19 @@ class Humanoid(Creature):
         self.__shoulders = None
         self.__torso = None
         self.__waist = None
+        self.__equip()
 
     @property
     def armour_class(self) -> int:
         if isinstance(self.torso, armour.Armour):
             armour_class = self.torso.armour_class
         else:
-            armour_class = self.base_armour_class
+            armour_class = super().armour_class
         if isinstance(self.off_hand, armour.Shield):
             armour_class += self.off_hand.armour_class_modifier
         elif isinstance(self.main_hand, armour.Shield):
             armour_class += self.main_hand.armour_class_modifier
         return armour_class
-
-    @property
-    def base_armour_class(self) -> int:
-        return super().armour_class
-
-    @property
-    def base_movement_rate(self) -> int:
-        return super().movement_rate
 
     @property
     def main_hand(self):
@@ -195,7 +206,7 @@ class Humanoid(Creature):
     def movement_rate(self) -> int:
         if isinstance(self.torso, armour.Armour):
             return self.torso.movement_rate
-        return self.base_movement_rate
+        return super().movement_rate
 
     @property
     def off_hand(self):
@@ -267,6 +278,17 @@ class Humanoid(Creature):
                     raise HoldError()
                 self.__main_hand = item
             self.__off_hand = item
+
+    def __equip(self) -> None:
+        for item_type in self.HANDS:
+            self.hold(item_type())
+        for item_type in self.TORSO:
+            self.don(item_type())
+        if self.WAIST:
+            belt = containers.Belt()
+            for item_type in self.WAIST:
+                belt.store(item_type())
+            self.don(belt)
 
 
 class Person:

@@ -3,6 +3,7 @@
 from game import ui
 from game.adventure import World
 from game.adventure.underground import Dungeon
+from game.creatures import Humanoid
 from game.creatures.adventurers import Adventurer
 from game.dice import d4, d6
 from game.objects.containers import Backpack
@@ -58,14 +59,14 @@ if __name__ == '__main__':
     print()
 
     for char in party.members:
+        print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
+        if '--stats' in sys.argv:
+            print(ui.statblock(char))
         if isinstance(char, Adventurer):
-            print(f"{char.handle:<18} {ui.health_bar(char, 20)}")
-            # print(char.handle)
-            # print(ui.health_bar(char, 39))
             if '--stats' in sys.argv:
-                print(ui.statblock(char))
                 # print(f"LV:{char.gold_for_next_level:,.0f}¤")
                 print(f"LV:{char.copper_for_next_level:,.0f}¢")
+        if isinstance(char, Humanoid):
             if '--inventory' in sys.argv:
                 ui.print_inventory(char, True)
                 print('-' * 39)

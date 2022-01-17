@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
+from game.creatures.humans import Human
 from .adventure import Location
 from .adventure.underground import Dungeon
-from .creatures import Creature
+from .creatures import Creature, Humanoid
 from .creatures.adventurers import Adventurer
 from .objects import Heavy, Stowable, TwoHanded
 from .objects.armour import Armour, Shield
@@ -11,6 +12,14 @@ from .objects.supplies import Supply
 from .objects.tools import ImprovisedWeapon
 from .objects.weapons import Missile, Weapon
 from math import ceil, floor
+
+
+def handle(char: Creature) -> str:
+    if hasattr(char, 'name'):
+        return getattr(char, 'name')
+    if isinstance(char, Adventurer):
+        return char.handle
+    return type(char).__name__
 
 
 def health_bar(char: Creature, width: int) -> str:
@@ -27,7 +36,7 @@ def health_bar(char: Creature, width: int) -> str:
     return survive + ('·' * ceil(width * wounds / char.hit_dice))
 
 
-def print_inventory(char: Adventurer, full: bool = False):
+def print_inventory(char: Humanoid, full: bool = False):
 
     inventory = {}
 
@@ -150,12 +159,25 @@ def print_location(location: Location):
 
 
 def statblock(char: Creature):
-    return ' '.join([
+    stats = [
         f"HD:{char.hit_dice:d}{char.hit_die_modifier:+d}",
         f"TH:{char.attack_target_value:d}",
         f"SV:{char.save_target_value:d}",
-        f"AC:{char.armour_class:d}",
-        f"MV:{char.movement_rate:d}",
-        f"ML:{char.morale_rating:d}",
-        # AL, XP, NA, TT
-    ])
+    ]
+
+    if char.armour_class == char.base_armour_class:
+        stats.append(f"AC:{char.armour_class:d}")
+    else:
+        stats.append(f"AC{char.base_armour_class:d}:{char.armour_class:d}")
+
+    if char.movement_rate == char.base_movement_rate:
+        stats.append(f"MV:{char.movement_rate:d}")
+    else:
+        stats.append(f"MV{char.base_movement_rate:d}:{char.movement_rate:d}")
+
+    if char.morale_rating == char.base_morale_rating:
+        stats.append(f"ML:{char.morale_rating:d}")
+    else:
+        stats.append(f"ML{char.base_morale_rating:d}:{char.morale_rating:d}")
+
+    return ' '.join(stats)

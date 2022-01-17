@@ -25,9 +25,8 @@ class Acolyte(Human):
     ML = 7
     XP = 10
     # TT = [U]
-    MHAND = weapons.Mace
-    OHAND = armour.Shield
-    TORSO = armour.Plate
+    HANDS = [weapons.Mace, armour.Shield]
+    TORSO = [armour.Plate]
 
 
 class Bandit(Human):
@@ -40,9 +39,8 @@ class Bandit(Human):
     XP = 10
     # TT = [U]
     # TT_LAIR = [A]
-    MHAND = weapons.Shortsword
-    OHAND = armour.Shield
-    TORSO = armour.Leather
+    HANDS = [weapons.Shortsword, armour.Shield]
+    TORSO = [armour.Leather]
 
 
 # TODO Commoner = NormalHuman
@@ -57,6 +55,6 @@ class Trader(Human):
     ML = 7
     XP = 10
     # TT = [U, V]
-    MHAND = weapons.Sword
-    OHAND = armour.Shield
-    TORSO = armour.Leather
+    HANDS = [weapons.Sword, armour.Shield]
+    TORSO = [armour.Leather]
+    WAIST = [weapons.Axe]

@@ -57,6 +57,10 @@ class Sling(Holdable, Missile, Weapon, Stowable, ResourceContainer[Stones]):
     RANGES = (3, 6, 9)
 
 
+class Mace(Holdable, Heavy, Melee, Weapon, Stowable):
+    DAMAGE = 3
+
+
 class Maul(Holdable, Heavy, Melee, Weapon, Stowable):
     DAMAGE = 3
 
@@ -110,4 +114,4 @@ class Polearm(Heavy, TwoHanded, Melee, Weapon):
     DAMAGE = 5
 
 
-Warhammer = Mace = Maul
+Warhammer = Maul
