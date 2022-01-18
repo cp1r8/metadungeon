@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from . import Area, Location, Party
-from ..dice import d4, d6, d20
-from random import randint
+from ..creatures import Creature, animals, humans, monsters, mutants
+from ..dice import d3, d4, d6, d8, d10, d20
+from random import choice, randint
 
 
 class Dungeon(Location):
@@ -11,7 +12,8 @@ class Dungeon(Location):
 
     class Door(Area):
 
-        def __init__(self, locked: bool = False, stuck: bool = False) -> None:
+        def __init__(self, contents: list = [], locked: bool = False, stuck: bool = False) -> None:
+            super().__init__(contents)
             self.__locked = locked
             self.__stuck = stuck
 
@@ -31,7 +33,8 @@ class Dungeon(Location):
 
     class Passage(Area):
 
-        def __init__(self, ahead: bool = False, branch: bool = False) -> None:
+        def __init__(self, ahead: bool = False, branch: bool = False, contents: list = []) -> None:
+            super().__init__(contents)
             self.__ahead = ahead
             self.__branch = branch
 
@@ -44,15 +47,14 @@ class Dungeon(Location):
             return self.__branch
 
     class Room(Area):
-        # TODO 1-2 empty, 1-in-6 treasure
-        # TODO 3-4 monster, 3-in-6 treasure
-        # TODO 5 special
-        # TODO 6 trap, 2-in-6 treasure
-        pass
+
+        def __init__(self, contents: list = []) -> None:
+            super().__init__(contents)
 
     class Stairway(Area):
 
-        def __init__(self, down: int = 0, up: int = 0) -> None:
+        def __init__(self, contents: list = [], down: int = 0, up: int = 0) -> None:
+            super().__init__(contents)
             self.__down = down
             self.__up = up
 
@@ -63,6 +65,29 @@ class Dungeon(Location):
         @property
         def up(self) -> int:
             return self.__up
+
+    ENCOUNTERS_LV1 = [
+        (humans.Acolyte, 1*d8),
+        (humans.Bandit, 1*d8),
+        (mutants.GiantFireBeetle, 1*d8),
+        # (demihumans.Dwarf, 1*d6),
+        # (demihumans.Gnome, 1*d6),
+        # (demihumans.Goblin, 2*d4),
+        (monsters.GreenSlime, 1*d4),
+        # (demihumans.Halfling, 3*d6),
+        (mutants.GiantKillerBee, 3*d6),
+        # (demihumans.Kobold, 4*d4),
+        (mutants.GiantGecko, 1*d3),
+        # (demihumans.Orc, 2*d4),
+        (mutants.GiantShrew, 1*d10),
+        # (Skeleton, 3*d4),
+        (animals.SpittingCobra, 1*d6),
+        (mutants.GiantCrabSpider, 1*d4),
+        # (demihumans.Sprite, 3*d6),
+        (monsters.Stirge, 1*d10),
+        (humans.Trader, 1*d8),
+        (animals.Wolf, 2*d6),
+    ]
 
     # MAXX = 10
     MAXY = 10
@@ -207,7 +232,7 @@ class Dungeon(Location):
         if roll <= 3:
             return self.__discoverPassage(d6())
         elif roll == 4:
-            return self.Room()
+            return self.__discoverRoom(d6())
         elif roll == 5:
             return self.__discoverObstacle(d6())
         else:
@@ -231,6 +256,22 @@ class Dungeon(Location):
         else:
             return self.Passage(ahead=False)  #  dead end
 
+    def __discoverRoom(self, roll: int) -> Room:
+        if roll <= 2:
+            # TODO 1-in-6 treasure
+            content = []
+        elif roll <= 4:
+            # TODO 3-in-6 treasure
+            content = self.__randomEncounter()
+        elif roll <= 5:
+            # TODO special
+            content = []
+        else:
+            # TODO trap
+            # TODO 2-in-6 treasure
+            content = []
+        return self.Room(content)
+
     def __discoverStairway(self, roll: int) -> Stairway:
         if roll <= 4:
             return self.Stairway(down=1)
@@ -238,3 +279,8 @@ class Dungeon(Location):
             return self.Stairway(down=2)
         else:
             return self.Stairway(up=1)
+
+    def __randomEncounter(self) -> list[Creature]:
+        # TODO encounters by level
+        creature_type, number_appearing = choice(self.ENCOUNTERS_LV1)
+        return creature_type.encounter(sum(number_appearing))

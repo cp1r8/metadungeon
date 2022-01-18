@@ -126,6 +126,10 @@ class Creature:
     def treasure_types(self) -> list:
         return self.TT
 
+    @classmethod
+    def encounter(cls, number_appearing: int) -> list['Creature']:
+        return [cls() for _ in range(0, number_appearing)]
+
     def hit(self, damage: int) -> bool:
         while damage > 0 and self.hits_taken < self.hit_dice:
             absorb = d6()

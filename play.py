@@ -3,7 +3,7 @@
 from game import ui
 from game.adventure import World
 from game.adventure.underground import Dungeon
-from game.creatures import Humanoid
+from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Adventurer
 from game.dice import d3, d4, d6
 from pathlib import Path
@@ -52,6 +52,10 @@ if __name__ == '__main__':
     # for testing
     if '--hit' in sys.argv:
         damage = sys.argv.count('--hit')
+        if (isinstance(party.location, Dungeon)):
+            for item in party.location.area.content:
+                if isinstance(item, Creature):
+                    item.hit(damage)
         for char in party.members:
             char.hit(damage)
 
@@ -62,17 +66,32 @@ if __name__ == '__main__':
             getattr(party.location, arg)(party)
             break
 
-    print(world.time)
-    ui.print_location(party.location)
-    print('=' * 39)
-    print()
+    print(f"{world.time} {type(party.location).__name__}")
+
+    if (isinstance(party.location, Dungeon)):
+        ui.print_dungeon_area(party.location)
+        print('=' * 39)
+        print()
+        for item in party.location.area.content:
+            if isinstance(item, Creature):
+                print(f"{ui.handle(item):<18} {ui.health_bar(item, 20)}")
+                if '--stats' in sys.argv:
+                    print(ui.statblock(item))
+                if isinstance(item, Humanoid):
+                    if '--inventory' in sys.argv:
+                        ui.print_inventory(item, True)
+                        print('-' * 39)
+                    elif '--arms' in sys.argv:
+                        ui.print_inventory(item)
+                        print('-' * 39)
+                    print()
 
     for char in party.members:
         print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
         if '--stats' in sys.argv:
             print(ui.statblock(char))
         if isinstance(char, Adventurer):
-            if '--stats' in sys.argv:
+            if '--level' in sys.argv:
                 # print(f"LV:{char.gold_for_next_level:,.0f}¤")
                 print(f"LV:{char.copper_for_next_level:,.0f}¢")
         if isinstance(char, Humanoid):

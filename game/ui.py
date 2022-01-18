@@ -118,44 +118,44 @@ def print_inventory_item(item, prefix: str = ' '):
             print(f" {mass} · · ·")
 
 
-def print_location(location: Location):
-    area = ''
-    bearing = ''
-    if (isinstance(location, Dungeon)):
-        if location.flee:
-            bearing = f"{location.z}-? FLEE!"
-        elif location.lost:
-            bearing = f"{location.z}-? LOST!"
+def print_dungeon_area(location: Dungeon):
+
+    if location.flee:
+        bearing = f"{location.z}-? FLEE!"
+    elif location.lost:
+        bearing = f"{location.z}-? LOST!"
+    else:
+        bearing = f"{location.z}-{location.y}"
+
+    if isinstance(location.area, Dungeon.Door):
+        if location.area.locked:
+            area = 'Door: locked'
+        elif location.area.stuck:
+            area = 'Door: stuck'
         else:
-            bearing = f"{location.z}-{location.y}"
-        if isinstance(location.area, Dungeon.Door):
-            if location.area.locked:
-                area = 'Door: locked'
-            elif location.area.stuck:
-                area = 'Door: stuck'
-            else:
-                area = 'Door: open'
-        elif isinstance(location.area, Dungeon.Passage):
-            if location.area.ahead and location.area.branch:
-                area = 'Passage branches'
-            elif location.area.ahead:
-                area = 'Passage ahead'
-            elif location.area.branch:
-                area = 'Passage turns'
-            else:
-                area = 'Dead end'
-        elif isinstance(location.area, Dungeon.Stairway):
-            if location.area.up and location.area.down:
-                area = 'Stairs up/down'
-            elif location.area.up:
-                area = 'Stairs up'
-            elif location.area.down:
-                area = 'Stairs down'
-            else:
-                area = 'Stairs blocked'
+            area = 'Door: open'
+    elif isinstance(location.area, Dungeon.Passage):
+        if location.area.ahead and location.area.branch:
+            area = 'Passage branches'
+        elif location.area.ahead:
+            area = 'Passage ahead'
+        elif location.area.branch:
+            area = 'Passage turns'
         else:
-            area = type(location.area).__name__
-    print(f"{type(location).__name__} {bearing} {area}")
+            area = 'Dead end'
+    elif isinstance(location.area, Dungeon.Stairway):
+        if location.area.up and location.area.down:
+            area = 'Stairs up/down'
+        elif location.area.up:
+            area = 'Stairs up'
+        elif location.area.down:
+            area = 'Stairs down'
+        else:
+            area = 'Stairs blocked'
+    else:
+        area = type(location.area).__name__
+
+    print(f"{bearing} {area}")
 
 
 def statblock(char: Creature):
