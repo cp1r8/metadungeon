@@ -12,6 +12,16 @@ import pickle
 import sys
 
 
+def random_adventurers(auto_equip: bool) -> list[Creature]:
+    if '--basic' in sys.argv:
+        return [Adventurer.random(d3(), auto_equip) for _ in range(0, d4() + 4)]
+    elif '--expert' in sys.argv:
+        return [Adventurer.random(d6() + 3, auto_equip) for _ in range(0, d4() + 4)]
+    elif '--funnel' in sys.argv:
+        return [Adventurer.random(0, auto_equip) for _ in range(0, sum(4*d4) + 4)]
+    return [Adventurer.random(1, auto_equip) for _ in range(0, sum(2*d4) + 4)]
+
+
 if __name__ == '__main__':
 
     game_file = Path.home() / '.local' / 'metadungeon.pickle'
@@ -22,32 +32,17 @@ if __name__ == '__main__':
             party = world.parties[0]
     else:
 
-        world = World()
-        dungeon = Dungeon()
-        world.establish(dungeon)
-
         if '--no-equip' in sys.argv:
-            # TODO start in town
             auto_equip = False
+            # TODO start in town
+            location = Dungeon()
         else:
             auto_equip = True
+            location = Dungeon()
 
-        if '--basic' in sys.argv:
-            party = world.assemble(dungeon, [
-                Adventurer.random(d3(), auto_equip) for _ in range(0, d4() + 4)
-            ])
-        elif '--expert' in sys.argv:
-            party = world.assemble(dungeon, [
-                Adventurer.random(d6() + 3, auto_equip) for _ in range(0, d4() + 4)
-            ])
-        elif '--funnel' in sys.argv:
-            party = world.assemble(dungeon, [
-                Adventurer.random(0, auto_equip) for _ in range(0, sum(4*d4) + 4)
-            ])
-        else:
-            party = world.assemble(dungeon, [
-                Adventurer.random(1, auto_equip) for _ in range(0, sum(2*d4) + 4)
-            ])
+        world = World()
+        world.establish(location)
+        party = world.assemble(location, random_adventurers(auto_equip))
 
     # for testing
     if '--hit' in sys.argv:
@@ -84,7 +79,7 @@ if __name__ == '__main__':
                     elif '--arms' in sys.argv:
                         ui.print_inventory(item)
                         print('-' * 39)
-                    print()
+                print()
 
     for char in party.members:
         print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
@@ -101,7 +96,7 @@ if __name__ == '__main__':
             elif '--arms' in sys.argv:
                 ui.print_inventory(char)
                 print('-' * 39)
-            print()
+        print()
 
     with game_file.open('wb') as output:
         pickle.dump(world, output)
