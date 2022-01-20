@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from game.adventure.underground import Dungeon
 from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Adventurer
 from game.objects import Heavy, Stowable, TwoHanded
@@ -9,6 +8,7 @@ from game.objects.containers import Belt, ResourceContainer, StorageContainer
 from game.objects.supplies import Supply
 from game.objects.tools import ImprovisedWeapon
 from game.objects.weapons import Missile, Weapon
+from game.places.underground import Dungeon
 from math import ceil, floor
 
 

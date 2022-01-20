@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 from game import World
-from game.adventure.underground import Dungeon
 from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Adventurer, Party
+from game.places.underground import Dungeon
 from game.dice import d4
 from pathlib import Path
 
@@ -26,12 +26,10 @@ if __name__ == '__main__':
         if '--no-equip' in sys.argv:
             auto_equip = False
             # TODO start in town
-            place = Dungeon()
+            place = Dungeon(world)
         else:
             auto_equip = True
-            place = Dungeon()
-
-        world.establish(place)
+            place = Dungeon(world)
 
         if '--basic' in sys.argv:
             party = Party.basic(place, auto_equip)
@@ -46,7 +44,7 @@ if __name__ == '__main__':
     if '--hit' in sys.argv:
         damage = sys.argv.count('--hit')
         if (isinstance(party.place, Dungeon)):
-            for item in party.place.area.content:
+            for item in party.place.area.contents:
                 if isinstance(item, Creature):
                     item.hit(damage)
         for char in party.members:
@@ -65,7 +63,7 @@ if __name__ == '__main__':
         ui.print_dungeon_area(party.place)
         print('=' * 39)
         print()
-        for item in party.place.area.content:
+        for item in party.place.area.contents:
             if isinstance(item, Creature):
                 print(f"{ui.handle(item):<18} {ui.health_bar(item, 20)}")
                 if '--stats' in sys.argv:

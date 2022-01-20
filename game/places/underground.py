@@ -1,20 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from . import Area, Site
 from .. import Place
 from ..creatures import Creature, animals, humans, monsters, mutants
 from ..dice import d3, d4, d6, d8, d10, d20
 from random import choice, randint
 
 
-class Dungeon(Site):
+class Dungeon(Place):
 
     # TODO door/passage trap?
 
-    class Door(Area):
+    class Door(Place):
 
-        def __init__(self, contents: list = [], locked: bool = False, stuck: bool = False) -> None:
-            super().__init__(contents)
+        def __init__(self, dungeon: 'Dungeon', locked: bool = False, stuck: bool = False) -> None:
+            super().__init__(dungeon)
             self.__locked = locked
             self.__stuck = stuck
 
@@ -32,10 +31,10 @@ class Dungeon(Site):
         def stuck(self) -> bool:
             return self.__stuck
 
-    class Passage(Area):
+    class Passage(Place):
 
-        def __init__(self, ahead: bool = False, branch: bool = False, contents: list = []) -> None:
-            super().__init__(contents)
+        def __init__(self, dungeon: 'Dungeon', ahead: bool = False, branch: bool = False) -> None:
+            super().__init__(dungeon)
             self.__ahead = ahead
             self.__branch = branch
 
@@ -47,15 +46,15 @@ class Dungeon(Site):
         def branch(self) -> bool:
             return self.__branch
 
-    class Room(Area):
+    class Room(Place):
 
-        def __init__(self, contents: list = []) -> None:
-            super().__init__(contents)
+        def __init__(self, dungeon: 'Dungeon', contents: list = []) -> None:
+            super().__init__(dungeon, contents)
 
-    class Stairway(Area):
+    class Stairway(Place):
 
-        def __init__(self, contents: list = [], down: int = 0, up: int = 0) -> None:
-            super().__init__(contents)
+        def __init__(self, dungeon: 'Dungeon', down: int = 0, up: int = 0) -> None:
+            super().__init__(dungeon)
             self.__down = down
             self.__up = up
 
@@ -94,8 +93,9 @@ class Dungeon(Site):
     MAXY = 10
     MAXZ = 10
 
-    def __init__(self) -> None:
-        self.__area = self.Stairway(up=1)
+    def __init__(self, place: Place) -> None:
+        super().__init__(place)
+        self.__area = self.Stairway(self, up=1)
         self.__flee = False
         self.__lost = False
         # self.__x = 1
@@ -103,7 +103,7 @@ class Dungeon(Site):
         self.__z = 1
 
     @property
-    def area(self) -> Area:
+    def area(self) -> Place:
         return self.__area
 
     @property
@@ -175,7 +175,7 @@ class Dungeon(Site):
     def down(self) -> Place:
         if 'down' not in self.actions():
             raise RuntimeError('Cannot descend')
-        self.__area = self.Stairway(up=1)
+        self.__area = self.Stairway(self, up=1)
         self.__y = randint(1, self.MAXY) if self.lost else 1
         self.__z += 1
         return self
@@ -199,7 +199,7 @@ class Dungeon(Site):
         if self.z <= 1:
             # TODO return to town
             exit()
-        self.__area = self.Stairway(down=1)
+        self.__area = self.Stairway(self, down=1)
         if not self.flee:
             self.__lost = False
         self.__y = self.MAXY
@@ -218,18 +218,18 @@ class Dungeon(Site):
             self.__lost = False
         return self
 
-    def __discover(self, next: bool = False) -> Area:
+    def __discover(self, next: bool = False) -> Place:
         if self.y <= 1:
-            return self.Stairway(up=1)
+            return self.Stairway(self, up=1)
         elif self.y < self.MAXY:
             # TODO tunable probabilities
-            return self.__discoverArea(d4() if next else d6())
+            return self.__discoverPlace(d4() if next else d6())
         elif self.z < self.MAXZ:
-            return self.Stairway(down=1)
+            return self.Stairway(self, down=1)
         else:
-            return self.Passage(ahead=False)  #  dead end
+            return self.Passage(self, ahead=False)  #  dead end
 
-    def __discoverArea(self, roll: int) -> Area:
+    def __discoverPlace(self, roll: int) -> Place:
         if roll <= 3:
             return self.__discoverPassage(d6())
         elif roll == 4:
@@ -241,21 +241,21 @@ class Dungeon(Site):
 
     def __discoverPassage(self, roll: int) -> Passage:
         if roll <= 3:
-            return self.Passage(ahead=True)
+            return self.Passage(self, ahead=True)
         elif roll <= 5:
-            return self.Passage(ahead=True, branch=True)
+            return self.Passage(self, ahead=True, branch=True)
         else:
-            return self.Passage(ahead=False, branch=True)
+            return self.Passage(self, ahead=False, branch=True)
 
-    def __discoverObstacle(self, roll: int) -> Area:
+    def __discoverObstacle(self, roll: int) -> Place:
         if roll <= 2:
-            return self.Door()
+            return self.Door(self)
         # elif roll <= 4:
-        #     return self.Door(stuck=True)
+        #     return self.Door(self, stuck=True)
         # elif roll == 5:
-        #     return self.Door(locked=True)
+        #     return self.Door(self, locked=True)
         else:
-            return self.Passage(ahead=False)  #  dead end
+            return self.Passage(self, ahead=False)  #  dead end
 
     def __discoverRoom(self, roll: int) -> Room:
         if roll <= 2:
@@ -271,15 +271,15 @@ class Dungeon(Site):
             # TODO trap
             # TODO 2-in-6 treasure
             content = []
-        return self.Room(content)
+        return self.Room(self, content)
 
     def __discoverStairway(self, roll: int) -> Stairway:
         if roll <= 4:
-            return self.Stairway(down=1)
+            return self.Stairway(self, down=1)
         elif roll == 5:
-            return self.Stairway(down=2)
+            return self.Stairway(self, down=2)
         else:
-            return self.Stairway(up=1)
+            return self.Stairway(self, up=1)
 
     def __randomEncounter(self) -> list[Creature]:
         # TODO encounters by level
