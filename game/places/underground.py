@@ -10,7 +10,17 @@ class Dungeon(Place):
 
     # TODO door/passage trap?
 
-    class Door(Place):
+    class Area(Place):
+
+        def __init__(self, dungeon: 'Dungeon', contents: list = []) -> None:
+            super().__init__(dungeon)
+            self.__contents = contents
+
+        @property
+        def contents(self) -> list:
+            return self.__contents.copy()
+
+    class Door(Area):
 
         def __init__(self, dungeon: 'Dungeon', locked: bool = False, stuck: bool = False) -> None:
             super().__init__(dungeon)
@@ -31,7 +41,7 @@ class Dungeon(Place):
         def stuck(self) -> bool:
             return self.__stuck
 
-    class Passage(Place):
+    class Passage(Area):
 
         def __init__(self, dungeon: 'Dungeon', ahead: bool = False, branch: bool = False) -> None:
             super().__init__(dungeon)
@@ -46,12 +56,10 @@ class Dungeon(Place):
         def branch(self) -> bool:
             return self.__branch
 
-    class Room(Place):
+    class Room(Area):
+        pass
 
-        def __init__(self, dungeon: 'Dungeon', contents: list = []) -> None:
-            super().__init__(dungeon, contents)
-
-    class Stairway(Place):
+    class Stairway(Area):
 
         def __init__(self, dungeon: 'Dungeon', down: int = 0, up: int = 0) -> None:
             super().__init__(dungeon)
@@ -89,34 +97,23 @@ class Dungeon(Place):
         (animals.Wolf, 2*d6),
     ]
 
-    # MAXX = 10
     MAXY = 10
     MAXZ = 10
 
     def __init__(self, place: Place) -> None:
         super().__init__(place)
         self.__area = self.Stairway(self, up=1)
-        self.__flee = False
         self.__lost = False
-        # self.__x = 1
         self.__y = 1
         self.__z = 1
 
     @property
-    def area(self) -> Place:
+    def area(self) -> Area:
         return self.__area
-
-    @property
-    def flee(self) -> bool:
-        return self.__flee
 
     @property
     def lost(self) -> bool:
         return self.__lost
-
-    # @property
-    # def x(self) -> int:
-    #     return self.__x
 
     @property
     def y(self) -> int:
@@ -200,8 +197,8 @@ class Dungeon(Place):
             # TODO return to town
             exit()
         self.__area = self.Stairway(self, down=1)
-        if not self.flee:
-            self.__lost = False
+        # if not self.flee:
+        #     self.__lost = False
         self.__y = self.MAXY
         self.__z -= 1
         return self
@@ -218,18 +215,18 @@ class Dungeon(Place):
             self.__lost = False
         return self
 
-    def __discover(self, next: bool = False) -> Place:
+    def __discover(self, next: bool = False) -> Area:
         if self.y <= 1:
             return self.Stairway(self, up=1)
         elif self.y < self.MAXY:
             # TODO tunable probabilities
-            return self.__discoverPlace(d4() if next else d6())
+            return self.__discoverArea(d4() if next else d6())
         elif self.z < self.MAXZ:
             return self.Stairway(self, down=1)
         else:
             return self.Passage(self, ahead=False)  #  dead end
 
-    def __discoverPlace(self, roll: int) -> Place:
+    def __discoverArea(self, roll: int) -> Area:
         if roll <= 3:
             return self.__discoverPassage(d6())
         elif roll == 4:
@@ -247,7 +244,7 @@ class Dungeon(Place):
         else:
             return self.Passage(self, ahead=False, branch=True)
 
-    def __discoverObstacle(self, roll: int) -> Place:
+    def __discoverObstacle(self, roll: int) -> Area:
         if roll <= 2:
             return self.Door(self)
         # elif roll <= 4:

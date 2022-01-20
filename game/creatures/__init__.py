@@ -334,6 +334,8 @@ T = TypeVar('T', bound=Creature)
 
 class Unit(Generic[T]):
 
+    # TODO fleeing state?
+
     def __init__(self, members: list[T], place: Place) -> None:
         self.__members = members
         self.__place = place

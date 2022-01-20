@@ -118,10 +118,11 @@ def print_inventory_item(item, prefix: str = ' '):
 
 def print_dungeon_area(place: Dungeon):
 
-    if place.flee:
-        bearing = f"{place.z}-? FLEE!"
-    elif place.lost:
-        bearing = f"{place.z}-? LOST!"
+    # if place.flee:
+    #     bearing = f"FLEE!"
+    # elif place.lost:
+    if place.lost:
+        bearing = f"LOST!"
     else:
         bearing = f"{place.z}-{place.y}"
 

@@ -5,19 +5,13 @@ from datetime import datetime
 
 class Place:
 
-    def __init__(self, place: 'Place', contents: list = []) -> None:
-        self.__contents = contents
+    def __init__(self, place: 'Place') -> None:
         self.__place = place
-
-    @property
-    def contents(self) -> list:
-        return self.__contents.copy()
 
     @property
     def place(self) -> 'Place':
         return self.__place
 
-    # TODO move to party?
     def actions(self) -> list:
         return []
 
