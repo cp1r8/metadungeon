@@ -326,3 +326,8 @@ class Humanoid(Creature):
 
 class Person:
     pass
+
+
+# TODO units
+class Unit:
+    pass

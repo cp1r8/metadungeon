@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from game.creatures.humans import Human
-from .adventure import Location
+from .adventure import Place
 from .adventure.underground import Dungeon
 from .creatures import Creature, Humanoid
 from .creatures.adventurers import Adventurer
@@ -118,42 +118,42 @@ def print_inventory_item(item, prefix: str = ' '):
             print(f" {mass} · · ·")
 
 
-def print_dungeon_area(location: Dungeon):
+def print_dungeon_area(place: Dungeon):
 
-    if location.flee:
-        bearing = f"{location.z}-? FLEE!"
-    elif location.lost:
-        bearing = f"{location.z}-? LOST!"
+    if place.flee:
+        bearing = f"{place.z}-? FLEE!"
+    elif place.lost:
+        bearing = f"{place.z}-? LOST!"
     else:
-        bearing = f"{location.z}-{location.y}"
+        bearing = f"{place.z}-{place.y}"
 
-    if isinstance(location.area, Dungeon.Door):
-        if location.area.locked:
+    if isinstance(place.area, Dungeon.Door):
+        if place.area.locked:
             area = 'Door: locked'
-        elif location.area.stuck:
+        elif place.area.stuck:
             area = 'Door: stuck'
         else:
             area = 'Door: open'
-    elif isinstance(location.area, Dungeon.Passage):
-        if location.area.ahead and location.area.branch:
+    elif isinstance(place.area, Dungeon.Passage):
+        if place.area.ahead and place.area.branch:
             area = 'Passage branches'
-        elif location.area.ahead:
+        elif place.area.ahead:
             area = 'Passage ahead'
-        elif location.area.branch:
+        elif place.area.branch:
             area = 'Passage turns'
         else:
             area = 'Dead end'
-    elif isinstance(location.area, Dungeon.Stairway):
-        if location.area.up and location.area.down:
+    elif isinstance(place.area, Dungeon.Stairway):
+        if place.area.up and place.area.down:
             area = 'Stairs up/down'
-        elif location.area.up:
+        elif place.area.up:
             area = 'Stairs up'
-        elif location.area.down:
+        elif place.area.down:
             area = 'Stairs down'
         else:
             area = 'Stairs blocked'
     else:
-        area = type(location.area).__name__
+        area = type(place.area).__name__
 
     print(f"{bearing} {area}")
 

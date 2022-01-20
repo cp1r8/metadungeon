@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from game import ui
-from game.adventure import World
+from game import World, ui
+from game.adventure import Party
 from game.adventure.underground import Dungeon
 from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Adventurer
@@ -28,46 +28,46 @@ if __name__ == '__main__':
 
     if game_file.exists() and '--reset' not in sys.argv:
         with game_file.open('rb') as input:
-            world = pickle.load(input)
-            party = world.parties[0]
+            world, party = pickle.load(input)
     else:
+
+        world = World()
 
         if '--no-equip' in sys.argv:
             auto_equip = False
             # TODO start in town
-            location = Dungeon()
+            place = Dungeon()
         else:
             auto_equip = True
-            location = Dungeon()
+            place = Dungeon()
 
-        world = World()
-        world.establish(location)
-        party = world.assemble(location, random_adventurers(auto_equip))
+        world.establish(place)
+        party = Party(place, random_adventurers(auto_equip))
 
     # for testing
     if '--hit' in sys.argv:
         damage = sys.argv.count('--hit')
-        if (isinstance(party.location, Dungeon)):
-            for item in party.location.area.content:
+        if (isinstance(party.place, Dungeon)):
+            for item in party.place.area.content:
                 if isinstance(item, Creature):
                     item.hit(damage)
         for char in party.members:
             char.hit(damage)
 
-    actions = party.location.actions(party)
+    actions = party.place.actions()
 
     for arg in sys.argv:
         if arg in actions:
-            getattr(party.location, arg)(party)
+            getattr(party.place, arg)()
             break
 
-    print(f"{world.time} {type(party.location).__name__}")
+    print(f"{world.time} {type(party.place).__name__}")
 
-    if (isinstance(party.location, Dungeon)):
-        ui.print_dungeon_area(party.location)
+    if (isinstance(party.place, Dungeon)):
+        ui.print_dungeon_area(party.place)
         print('=' * 39)
         print()
-        for item in party.location.area.content:
+        for item in party.place.area.content:
             if isinstance(item, Creature):
                 print(f"{ui.handle(item):<18} {ui.health_bar(item, 20)}")
                 if '--stats' in sys.argv:
@@ -99,8 +99,8 @@ if __name__ == '__main__':
         print()
 
     with game_file.open('wb') as output:
-        pickle.dump(world, output)
+        pickle.dump((world, party), output)
 
     if '--actions' in sys.argv:
-        actions = party.location.actions(party)
+        actions = party.place.actions()
         print(' / '.join(actions))

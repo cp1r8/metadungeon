@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
-from . import Area, Location, Party
+from . import Area, Site
+from .. import Place
 from ..creatures import Creature, animals, humans, monsters, mutants
 from ..dice import d3, d4, d6, d8, d10, d20
 from random import choice, randint
 
 
-class Dungeon(Location):
+class Dungeon(Site):
 
     # TODO door/passage trap?
 
@@ -125,7 +126,7 @@ class Dungeon(Location):
     def z(self) -> int:
         return self.__z
 
-    def actions(self, party: Party) -> list:
+    def actions(self) -> list:
         actions = []
         if self.lost:
             actions.append('wander')
@@ -157,8 +158,8 @@ class Dungeon(Location):
         # TODO unlock (door) -- key or Lockpicks
         return actions
 
-    def back(self, party: Party, distance: int = 1) -> Location:
-        if 'back' not in self.actions(party):
+    def back(self, distance: int = 1) -> Place:
+        if 'back' not in self.actions():
             raise RuntimeError('Cannot backtrack')
         # TODO INT bonus?
         roll = d20()
@@ -171,29 +172,29 @@ class Dungeon(Location):
             self.__area = self.__discover()
         return self
 
-    def down(self, party: Party) -> Location:
-        if 'down' not in self.actions(party):
+    def down(self) -> Place:
+        if 'down' not in self.actions():
             raise RuntimeError('Cannot descend')
         self.__area = self.Stairway(up=1)
         self.__y = randint(1, self.MAXY) if self.lost else 1
         self.__z += 1
         return self
 
-    def forth(self, party: Party) -> Location:
-        if 'forth' not in self.actions(party):
+    def forth(self) -> Place:
+        if 'forth' not in self.actions():
             raise RuntimeError('Cannot advance')
         self.__y += 1
         self.__area = self.__discover(next=isinstance(self.area, self.Door))
         return self
 
-    def side(self, party: Party) -> Location:
-        if 'side' not in self.actions(party):
+    def side(self) -> Place:
+        if 'side' not in self.actions():
             raise RuntimeError('Cannot divert')
         self.__area = self.__discover(next=True)
         return self
 
-    def up(self, party: Party) -> Location:
-        if 'up' not in self.actions(party):
+    def up(self) -> Place:
+        if 'up' not in self.actions():
             raise RuntimeError('Cannot ascend')
         if self.z <= 1:
             # TODO return to town
@@ -205,8 +206,8 @@ class Dungeon(Location):
         self.__z -= 1
         return self
 
-    def wander(self, party: Party) -> Location:
-        if 'wander' not in self.actions(party):
+    def wander(self) -> Place:
+        if 'wander' not in self.actions():
             raise RuntimeError('Cannot wander')
         if isinstance(self.area, self.Passage) and self.area.ahead and not self.area.branch:
             self.__y = randint(1, self.MAXY)
