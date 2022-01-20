@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from game.creatures import Creature, Humanoid
-from game.creatures.adventurers import Adventurer
+from game.creatures.adventurers import Adventurer, Party
 from game.objects import Heavy, Stowable, TwoHanded
 from game.objects.armour import Armour, Shield
 from game.objects.containers import Belt, ResourceContainer, StorageContainer
@@ -21,17 +21,68 @@ def handle(char: Creature) -> str:
 
 
 def health_bar(char: Creature, width: int) -> str:
+
     if char.hit_dice == 0:
         return ('·' * width) if char.hits_taken else ('█' * width)
+
     if char.hits_taken < char.hit_dice:
         hits = char.hits_taken + (0.5 if char.partial_hit else 0)
         health = '█' * floor(width * (char.hit_dice - hits) / char.hit_dice)
         return health + ('▒' * ceil(width * hits / char.hit_dice))
+
     wounds = char.hits_taken - char.hit_dice
+
     if wounds >= char.hit_dice:
         return '·' * width
+
     survive = '▒' * floor(width * (char.hit_dice - wounds) / char.hit_dice)
+
     return survive + ('·' * ceil(width * wounds / char.hit_dice))
+
+
+def party_location(party: Party):
+
+    place = party.location
+
+    # if party.flee:
+    #     bearing = f"FLEE"
+    # el…
+    if party.lost:
+        bearing = f"LOST"
+    elif isinstance(place, Dungeon.Area):
+        bearing = f"{place.z:02d}{place.y:02d}"
+    else:
+        bearing = '0000'
+
+    if isinstance(place, Dungeon.Door):
+        if place.locked:
+            area = 'Door: locked'
+        elif place.stuck:
+            area = 'Door: stuck'
+        else:
+            area = 'Door: open'
+    elif isinstance(place, Dungeon.Passage):
+        if place.ahead and place.branch:
+            area = 'Intersection'
+        elif place.ahead:
+            area = 'Passage ahead'
+        elif place.branch:
+            area = 'Passage turns'
+        else:
+            area = 'Dead end'
+    elif isinstance(place, Dungeon.Stairway):
+        if place.ascend and place.descend:
+            area = 'Stairs up/down'
+        elif place.ascend:
+            area = 'Stairs up'
+        elif place.descend:
+            area = 'Stairs down'
+        else:
+            area = 'Stairs blocked'
+    else:
+        area = type(place).__name__
+
+    return f"{bearing} {area}"
 
 
 def print_inventory(char: Humanoid, full: bool = False):
@@ -116,48 +167,8 @@ def print_inventory_item(item, prefix: str = ' '):
             print(f" {mass} · · ·")
 
 
-def print_dungeon_area(place: Dungeon.Area):
-
-    # if place.flee:
-    #     bearing = f"FLEE!"
-    # el…
-    if place.location.lost:
-        bearing = f"LOST!"
-    else:
-        bearing = f"{place.z}-{place.y}"
-
-    if isinstance(place, Dungeon.Door):
-        if place.locked:
-            area = 'Door: locked'
-        elif place.stuck:
-            area = 'Door: stuck'
-        else:
-            area = 'Door: open'
-    elif isinstance(place, Dungeon.Passage):
-        if place.ahead and place.branch:
-            area = 'Passage branches'
-        elif place.ahead:
-            area = 'Passage ahead'
-        elif place.branch:
-            area = 'Passage turns'
-        else:
-            area = 'Dead end'
-    elif isinstance(place, Dungeon.Stairway):
-        if place.up and place.down:
-            area = 'Stairs up/down'
-        elif place.up:
-            area = 'Stairs up'
-        elif place.down:
-            area = 'Stairs down'
-        else:
-            area = 'Stairs blocked'
-    else:
-        area = type(place).__name__
-
-    print(f"{bearing} {area}")
-
-
 def statblock(char: Creature):
+
     stats = [
         f"HD:{char.hit_dice:d}{char.hit_die_modifier:+d}",
         f"TH:{char.attack_target_value:d}",

@@ -527,6 +527,11 @@ class Party(Unit[Adventurer]):
         Thief: 1*d6+4,
     }
 
+    def __init__(self, members: list[Adventurer], location: Place) -> None:
+        super().__init__(members, location)
+        self.flee = False
+        self.lost = False
+
     @classmethod
     def assemble(cls, level: int, members: int, place: Place, auto_equip: bool = True) -> 'Party':
         return cls([

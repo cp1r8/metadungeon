@@ -3,6 +3,10 @@
 from datetime import datetime
 
 
+class Actor:
+    pass
+
+
 class Place:
 
     def __init__(self, location: 'Place') -> None:
@@ -12,7 +16,7 @@ class Place:
     def location(self) -> 'Place':
         return self.__location
 
-    def actions(self) -> list:
+    def actions(self, actor: Actor) -> list:
         return []
 
 

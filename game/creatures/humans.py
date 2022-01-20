@@ -4,7 +4,7 @@ from . import Humanoid, Person, Unit, adventurers
 from .. import Place
 from ..dice import d3
 from ..objects import armour, weapons
-from random import random
+import random
 
 
 class Human(Humanoid, Person):
@@ -38,7 +38,7 @@ class Acolyte(Human):
         unit = super().encounter(number_appearing, place)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
-            unit.add(adventurers.Cleric.generate(level, True))
+            unit.assign(adventurers.Cleric.generate(level, True))
         return unit
 
 
@@ -64,7 +64,7 @@ class Bandit(Human):
         unit = super().encounter(number_appearing, place)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
-            unit.add(adventurers.Adventurer.generate(level, True))
+            unit.assign(adventurers.Adventurer.generate(level, True))
         return unit
 
 

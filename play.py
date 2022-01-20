@@ -26,10 +26,10 @@ if __name__ == '__main__':
         if '--no-equip' in sys.argv:
             auto_equip = False
             # TODO start in town
-            place = Dungeon(world)
+            place = Dungeon(world).entrance
         else:
             auto_equip = True
-            place = Dungeon(world)
+            place = Dungeon(world).entrance
 
         if '--basic' in sys.argv:
             party = Party.basic(place, auto_equip)
@@ -43,27 +43,26 @@ if __name__ == '__main__':
     # for testing
     if '--hit' in sys.argv:
         damage = sys.argv.count('--hit')
-        if (isinstance(party.location, Dungeon)):
-            for item in party.location.area.contents:
+        if (isinstance(party.location, Dungeon.Area)):
+            for item in party.location.contents:
                 if isinstance(item, Creature):
                     item.hit(damage)
         for char in party.members:
             char.hit(damage)
 
-    actions = party.location.actions()
+    actions = party.location.actions(party)
 
     for arg in sys.argv:
         if arg in actions:
-            getattr(party.location, arg)()
+            getattr(party.location, arg)(party)
             break
 
-    print(f"{world.time} {type(party.location).__name__}")
+    print(f"{world.time:%Y-%m-%d %H:%M}   {ui.party_location(party)}")
+    print('=' * 39)
+    print()
 
-    if (isinstance(party.location, Dungeon)):
-        ui.print_dungeon_area(party.location.area)
-        print('=' * 39)
-        print()
-        for item in party.location.area.contents:
+    if (isinstance(party.location, Dungeon.Area)):
+        for item in party.location.contents:
             if isinstance(item, Unit):
                 for char in item.members:
                     print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
@@ -77,6 +76,8 @@ if __name__ == '__main__':
                             ui.print_inventory(char)
                             print('-' * 39)
                     print()
+                print('=' * 39)
+                print()
 
     for char in party.members:
         print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
@@ -99,5 +100,5 @@ if __name__ == '__main__':
         pickle.dump((world, party), output)
 
     if '--actions' in sys.argv:
-        actions = party.location.actions()
+        actions = party.location.actions(party)
         print(' / '.join(actions))

@@ -2,6 +2,7 @@
 
 from .. import Place
 from ..creatures import Unit, animals, humans, monsters, mutants
+from ..creatures.adventurers import Party
 from ..dice import d3, d4, d6, d8, d10, d20
 from random import choice, randint
 
@@ -9,6 +10,9 @@ from random import choice, randint
 class Dungeon(Place):
 
     # TODO door/passage trap?
+    # TODO flee
+    # TODO rest
+    # TODO search
 
     class Area(Place):
 
@@ -37,8 +41,47 @@ class Dungeon(Place):
         def z(self) -> int:
             return self.__z
 
+        def actions(self, party: Party) -> list:
+            actions = []
+            if party.lost:
+                actions.append('wander')
+            elif self.y > 1:
+                actions.append('back')
+            return actions
+
         def add(self, item) -> None:
             self.__contents.append(item)
+
+        def back(self, party: Party, distance: int = 1) -> None:
+            if 'back' not in self.actions(party):
+                raise RuntimeError('Cannot backtrack')
+            # TODO INT bonus?
+            roll = d20()
+            if roll < self.y:
+                party.lost = True
+                area = self.location.discover(self, roll)
+            else:
+                area = self.location.discover(self, max(1, self.y - distance))
+            party.move(area)
+
+        def next(self, party: Party) -> None:
+            if 'next' not in self.actions(party):
+                raise RuntimeError('Cannot advance')
+            area = self.location.discover(self, self.y + 1)
+            party.move(area)
+
+        def wander(self, party: Party) -> None:
+            if 'wander' not in self.actions(party):
+                raise RuntimeError('Cannot wander')
+            if isinstance(self, Dungeon.Passage) and self.ahead and not self.branch:
+                y = randint(1, self.location.MAXY)
+            else:
+                y = self.y - 1
+            area = self.location.discover(self, y)
+            # TODO should depend on the level where they got lost
+            if y <= 1:
+                party.lost = False
+            party.move(area)
 
     class Door(Area):
 
@@ -61,6 +104,22 @@ class Dungeon(Place):
         def stuck(self) -> bool:
             return self.__stuck
 
+        def actions(self, party: Party) -> list:
+            actions = super().actions(party)
+            if self.open:
+                actions.append('next')
+            return actions
+
+        def next(self, party: Party) -> None:
+            if 'next' not in self.actions(party):
+                raise RuntimeError('Cannot next')
+            area = self.location.discover(self, self.y, True)
+            party.move(area)
+
+        # TODO force
+        # TODO listen ???
+        # TODO unlock -- key or Lockpicks
+
     class Passage(Area):
 
         def __init__(self, dungeon: 'Dungeon', y: int, z: int, ahead: bool = False, branch: bool = False) -> None:
@@ -76,23 +135,76 @@ class Dungeon(Place):
         def branch(self) -> bool:
             return self.__branch
 
+        def actions(self, party: Party) -> list:
+            actions = super().actions(party)
+            if self.ahead and not party.lost:
+                actions.append('next')
+            if self.branch:
+                actions.append('turn')
+            return actions
+
+        def turn(self, party: Party) -> None:
+            if 'turn' not in self.actions(party):
+                raise RuntimeError('Cannot turn')
+            area = self.location.discover(self, self.y, True)
+            party.move(area)
+
     class Room(Area):
-        pass
+
+        def actions(self, party: Party) -> list:
+            actions = super().actions(party)
+            if self.y < self.location.MAXY and not party.lost:
+                actions.append('next')
+            return actions
 
     class Stairway(Area):
 
-        def __init__(self, dungeon: 'Dungeon', y: int, z: int, down: int = 0, up: int = 0) -> None:
+        def __init__(self, dungeon: 'Dungeon', y: int, z: int, ascend: int = 0, descend: int = 0) -> None:
             super().__init__(dungeon, y, z)
-            self.__down = down
-            self.__up = up
+            self.__ascend = ascend
+            self.__descend = descend
 
         @property
-        def down(self) -> int:
-            return self.__down
+        def ascend(self) -> int:
+            return self.__ascend
 
         @property
-        def up(self) -> int:
-            return self.__up
+        def descend(self) -> int:
+            return self.__descend
+
+        def actions(self, party: Party) -> list:
+            actions = super().actions(party)
+            if self.ascend:
+                actions.append('up')
+            if self.descend:
+                actions.append('down')
+            if self.y < self.location.MAXY and not party.lost:
+                actions.append('next')
+            return actions
+
+        def down(self, party: Party) -> None:
+            if 'down' not in self.actions(party):
+                raise RuntimeError('Cannot descend')
+            y = randint(1, self.location.MAXY) if party.lost else 1
+            z = self.z + self.descend
+            area = Dungeon.Stairway(self.location, y, z, ascend=self.descend)
+            party.move(area)
+
+        def up(self, party: Party) -> None:
+            if 'up' not in self.actions(party):
+                raise RuntimeError('Cannot ascend')
+            if self.z <= 1:
+                # TODO return to town/wilderness
+                exit()
+            area = Dungeon.Stairway(
+                self.location,
+                self.location.MAXY,
+                self.z - self.ascend,
+                descend=self.ascend,
+            )
+            if not party.flee:
+                party.lost = False
+            party.move(area)
 
     ENCOUNTERS_LV1 = [
         (humans.Acolyte, 1*d8),
@@ -122,122 +234,22 @@ class Dungeon(Place):
 
     def __init__(self, location: Place) -> None:
         super().__init__(location)
-        self.__area = self.Stairway(self, 1, 1, up=1)
-        self.__lost = False
+        self.__entrance = self.Stairway(self, 1, 1, ascend=1)
 
     @property
-    def area(self) -> Area:
-        return self.__area
+    def entrance(self) -> Area:
+        return self.__entrance
 
-    @property
-    def lost(self) -> bool:
-        return self.__lost
-
-    def actions(self) -> list:
-        actions = []
-        if self.lost:
-            actions.append('wander')
-        else:
-            if self.area.y > 1:
-                actions.append('back')
-            if self.area.y < self.MAXY:
-                if isinstance(self.area, self.Door):
-                    if self.area.open:
-                        actions.append('forth')
-                elif isinstance(self.area, self.Passage):
-                    if self.area.ahead:
-                        actions.append('forth')
-                else:
-                    actions.append('forth')
-        if isinstance(self.area, self.Passage):
-            if self.area.branch:
-                actions.append('side')
-        if isinstance(self.area, self.Stairway):
-            if self.area.down > 0:
-                actions.append('down')
-            if self.area.up > 0:
-                actions.append('up')
-        # TODO flee
-        # TODO force (door)
-        # TODO listen (door) ???
-        # TODO rest
-        # TODO search
-        # TODO unlock (door) -- key or Lockpicks
-        return actions
-
-    def back(self, distance: int = 1) -> Place:
-        if 'back' not in self.actions():
-            raise RuntimeError('Cannot backtrack')
-        # TODO INT bonus?
-        roll = d20()
-        if roll < self.area.y:
-            self.__area = self.__discover(roll, self.area.z)
-            self.__lost = True
-        else:
-            self.__area = self.__discover(
-                max(1, self.area.y - distance),
-                self.area.z,
-            )
-        return self
-
-    def down(self) -> Place:
-        if 'down' not in self.actions():
-            raise RuntimeError('Cannot descend')
-        y = randint(1, self.MAXY) if self.lost else 1
-        z = self.area.z + 1
-        self.__area = self.Stairway(self, y, z, up=1)
-        return self
-
-    def forth(self) -> Place:
-        if 'forth' not in self.actions():
-            raise RuntimeError('Cannot advance')
-        self.__area = self.__discover(
-            self.area.y + 1,
-            self.area.z,
-            next=isinstance(self.area, self.Door),
-        )
-        return self
-
-    def side(self) -> Place:
-        if 'side' not in self.actions():
-            raise RuntimeError('Cannot divert')
-        self.__area = self.__discover(self.area.y, self.area.z, next=True)
-        return self
-
-    def up(self) -> Place:
-        if 'up' not in self.actions():
-            raise RuntimeError('Cannot ascend')
-        if self.area.z <= 1:
-            # TODO return to town
-            exit()
-        self.__area = self.Stairway(self, self.MAXY, self.area.z - 1, down=1)
-        # if not self.flee:
-        #     self.__lost = False
-        return self
-
-    def wander(self) -> Place:
-        if 'wander' not in self.actions():
-            raise RuntimeError('Cannot wander')
-        if isinstance(self.area, self.Passage) and self.area.ahead and not self.area.branch:
-            y = randint(1, self.MAXY)
-        else:
-            y = self.area.y - 1
-        self.__area = self.__discover(y, self.area.z)
-        # TODO should on level where they got lost
+    def discover(self, area: Area, y: int, limit: bool = False) -> Area:
         if y <= 1:
-            self.__lost = False
-        return self
-
-    def __discover(self, y: int, z: int, next: bool = False) -> Area:
-        if self.area.y <= 1:
-            return self.Stairway(self, y, z, up=1)
-        elif self.area.y < self.MAXY:
+            return self.Stairway(self, y, area.z, ascend=1)
+        elif y < self.MAXY:
             # TODO tunable probabilities
-            return self.__discoverArea(y, z, d4() if next else d6())
-        elif self.area.z < self.MAXZ:
-            return self.Stairway(self, y, z, down=1)
+            return self.__discoverArea(y, area.z, d4() if limit else d6())
+        elif area.z < self.MAXZ:
+            return self.Stairway(self, y, area.z, descend=1)
         else:
-            return self.Passage(self, y, z, ahead=False)  #  dead end
+            return self.Passage(self, y, area.z, ahead=False)  #  dead end
 
     def __discoverArea(self, y: int, z: int, roll: int) -> Area:
         if roll <= 3:
@@ -286,13 +298,13 @@ class Dungeon(Place):
 
     def __discoverStairway(self, y: int, z: int, roll: int) -> Stairway:
         if roll <= 4:
-            return self.Stairway(self, y, z, down=1)
+            return self.Stairway(self, y, z, descend=1)
         elif roll == 5:
-            return self.Stairway(self, y, z, down=2)
+            return self.Stairway(self, y, z, descend=2)
         else:
-            return self.Stairway(self, y, z, up=1)
+            return self.Stairway(self, y, z, ascend=1)
 
-    def __randomEncounter(self, location: Place) -> Unit:
+    def __randomEncounter(self, location: Area) -> Unit:
         # TODO encounters by level
         creature_type, number_appearing = choice(self.ENCOUNTERS_LV1)
         return creature_type.encounter(sum(number_appearing), location)

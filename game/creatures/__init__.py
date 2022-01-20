@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .. import Place
+from .. import Actor, Place
 from ..dice import d6, d20
 from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
@@ -15,7 +15,7 @@ class WearError(ValueError):
     pass
 
 
-class Creature:
+class Creature(Actor):
 
     class Attack:
 
@@ -332,12 +332,11 @@ class Person:
 T = TypeVar('T', bound=Creature)
 
 
-class Unit(Generic[T]):
-
-    # TODO fleeing state?
+class Unit(Actor, Generic[T]):
 
     def __init__(self, members: list[T], location: Place) -> None:
         self.__location = location
+        # TODO members should be aware of the unit to which they belong (one at a time)
         self.__members = members
 
     @property
@@ -348,8 +347,11 @@ class Unit(Generic[T]):
     def members(self) -> list[T]:
         return self.__members.copy()
 
-    def add(self, member: T) -> None:
+    def assign(self, member: T) -> None:
         self.__members.append(member)
 
-    def remove(self, member: T) -> None:
+    def dismiss(self, member: T) -> None:
         self.__members.remove(member)
+
+    def move(self, location: Place) -> None:
+        self.__location = location
