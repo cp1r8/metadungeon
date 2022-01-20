@@ -4,6 +4,7 @@ from . import Creature
 
 
 class DireWolf(Creature):
+    '''Large, savage, semi-intelligent wolves. Dwell in caves, mountains, and forests.'''
 
     class Bite(Creature.Attack):
         DAMAGE = 5
@@ -18,16 +19,20 @@ class DireWolf(Creature):
     ML = 8
     XP = 125
 
+    # TODO Training: At the referee’s discretion, captured cubs may be trained like dogs. Dire wolves are ferocious and extremely difficult to train.
+    # TODO Mounts: Sometimes trained as mounts by goblins.
+
 
 class SpittingCobra(Creature):
+    '''3’ long snakes with grey/white scales. Prefer to attack from a distance with spit.'''
 
     class Bite(Creature.Attack):
         DAMAGE = 2
-        # TODO save vs. poison or dead in 1d10 turns
+        # TODO Poison: Causes death in 1d10 turns (save versus poison).
 
     class Spit(Creature.Attack):
         DAMAGE = 0
-        # TODO range 1, save. vs. poison or permanently blind
+        # TODO Blinding spit: Range: 6’. A hit causes permanent blindness (save vs poison).
 
     AC = 7
     HD = 1
@@ -40,6 +45,7 @@ class SpittingCobra(Creature):
 
 
 class Wolf(Creature):
+    '''Carnivorous relatives of dogs that hunt in packs. Dwell primarily in wild lands, but occasionally lair in caves.'''
 
     class Bite(Creature.Attack):
         DAMAGE = 3
@@ -53,4 +59,5 @@ class Wolf(Creature):
     SV = 14
     ML = 6
     XP = 25
-    # TODO ML8 if NA≥4
+    # TODO Training: At the referee’s discretion, captured cubs may be trained like dogs. Wolves are difficult to train.
+    # TODO Strength in numbers: Packs of 4 or more wolves have morale 8. If the pack is reduced to less than 50% of its original size, this morale bonus is lost.

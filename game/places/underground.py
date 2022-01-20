@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from .. import Place
-from ..creatures import Creature, animals, humans, monsters, mutants
+from ..creatures import Creature, Unit, animals, humans, monsters, mutants
 from ..dice import d3, d4, d6, d8, d10, d20
 from random import choice, randint
 
@@ -12,13 +12,16 @@ class Dungeon(Place):
 
     class Area(Place):
 
-        def __init__(self, dungeon: 'Dungeon', contents: list = []) -> None:
+        def __init__(self, dungeon: 'Dungeon') -> None:
             super().__init__(dungeon)
-            self.__contents = contents
+            self.__contents = []
 
         @property
         def contents(self) -> list:
             return self.__contents.copy()
+
+        def add(self, item) -> None:
+            self.__contents.append(item)
 
     class Door(Area):
 
@@ -256,19 +259,20 @@ class Dungeon(Place):
 
     def __discoverRoom(self, roll: int) -> Room:
         if roll <= 2:
+            room = self.Room(self)
             # TODO 1-in-6 treasure
-            content = []
         elif roll <= 4:
+            room = self.Room(self)
+            room.add(self.__randomEncounter(room))
             # TODO 3-in-6 treasure
-            content = self.__randomEncounter()
         elif roll <= 5:
+            room = self.Room(self)
             # TODO special
-            content = []
         else:
+            room = self.Room(self)
             # TODO trap
             # TODO 2-in-6 treasure
-            content = []
-        return self.Room(self, content)
+        return room
 
     def __discoverStairway(self, roll: int) -> Stairway:
         if roll <= 4:
@@ -278,7 +282,7 @@ class Dungeon(Place):
         else:
             return self.Stairway(self, up=1)
 
-    def __randomEncounter(self) -> list[Creature]:
+    def __randomEncounter(self, place: Place) -> Unit:
         # TODO encounters by level
         creature_type, number_appearing = choice(self.ENCOUNTERS_LV1)
-        return creature_type.encounter(sum(number_appearing))
+        return creature_type.encounter(sum(number_appearing), place)

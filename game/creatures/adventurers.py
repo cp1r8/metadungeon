@@ -5,9 +5,12 @@ from .. import Place
 from ..dice import d3, d4, d6
 from ..objects import armour, containers, supplies, tools, valuables, weapons
 from .humans import Human
+from random import choice
 
 
 class Adventurer(Human):
+
+    # TODO Disadvantage using armour/shields and/or using weapons other than club, dagger, or staff
 
     AC_BY_DEX = (11, 11, 11, 10, 10, 10, 9, 9,
                  9, 9, 8, 8, 8, 7, 7, 7)
@@ -24,6 +27,8 @@ class Adventurer(Human):
 
     # XP_VALUE_IN_COPPER = valuables.Silver.VALUE_IN_COPPER
     XP_VALUE_IN_COPPER = valuables.Gold.VALUE_IN_COPPER
+
+    # TT = [U, V]
 
     def __init__(
         self,
@@ -109,23 +114,24 @@ class Adventurer(Human):
         return self.SV_BY_WIS[self.__wis - 3]
 
     # TODO level up
+    # TODO Adventurer must select a character class after gaining XP on an adventure.
 
     @classmethod
-    def random(cls, level: int, auto_equip: bool) -> 'Adventurer':
-        def random_class(roll: int) -> type:
-            if roll <= 2:
-                return Fighter
-            if roll <= 3:
-                return Muser
-            return Thief
+    def generate(cls, level: int, auto_equip: bool = True) -> 'Adventurer':
+
         if cls is Adventurer and level > 0:
-            cls = random_class(d4())
-        adventurer = cls(*(sum(3*d6) for _ in range(6)), level=level)
+            cls = choice([Fighter, Fighter, Muser, Thief])
+
+        adventurer = cls(
+            *(sum(3*d6) for _ in range(6)),
+            level=0 if cls is Adventurer else max(1, level),
+        )
+
         if auto_equip:
             adventurer.__auto_equip()
-            # TODO TT U+V
         else:
             adventurer.__belt_and_money()
+
         return adventurer
 
     def random_adventuring_gear(self, roll: int) -> list:
@@ -216,6 +222,9 @@ class Adventurer(Human):
 
 
 class Fighter(Adventurer):
+    '''Adventurers dedicated to mastering the arts of combat and war.'''
+
+    # TODO Fighters can use all types of weapons and armour.
 
     XP_NEXT_LV = (20, 20, 40, 80, 160, 320, 640, 1200, 1200)
 
@@ -340,6 +349,7 @@ class Fighter(Adventurer):
 
 
 class Muser(Adventurer):
+    '''Adventurers whose study of arcane secrets has taught them how to invoke algorithms.'''
 
     XP_NEXT_LV = (25, 25, 50, 100, 200, 400, 700, 1500, 1500)
 
@@ -415,6 +425,11 @@ class Muser(Adventurer):
 
 
 class Thief(Adventurer):
+    '''Adventurers who live by their skills of deception and stealth.'''
+
+    # TODO Back-stab: When attacking an unaware opponent from behind, +4 bonus to hit and double damage.
+    # TODO Disadvantage if using shield or heavy armour; can use any weapon
+    # TODO Luck?
 
     XP_NEXT_LV = (12, 12, 24, 48, 100, 200, 400, 800, 1200)
 
@@ -501,20 +516,41 @@ class Thief(Adventurer):
 
 class Party(Unit[Adventurer]):
 
+    CLASS_EXPERT_LEVELS = {
+        # Barbarian: 1*d6+6, # Dwarf
+        # Bard: 1*d6+2, # Elf
+        # Cleric: 1*d6+3,
+        Fighter: 1*d6+3,
+        Fighter: 1*d6+5,
+        # Ranger: 1*d6+2, # Halfling
+        Muser: 1*d6+3,
+        Thief: 1*d6+4,
+    }
+
     @classmethod
     def assemble(cls, level: int, members: int, place: Place, auto_equip: bool = True) -> 'Party':
         return cls([
-            Adventurer.random(level, auto_equip) for _ in range(0, members)
+            Adventurer.generate(level, auto_equip) for _ in range(0, members)
         ], place)
 
     @classmethod
     def basic(cls, place: Place, auto_equip: bool = True) -> 'Party':
         return cls([
-            Adventurer.random(d3(), auto_equip) for _ in range(0, d4() + 4)
+            Adventurer.generate(d3(), auto_equip) for _ in range(0, d4() + 4)
         ], place)
 
     @classmethod
     def expert(cls, place: Place, auto_equip: bool = True) -> 'Party':
+        # TODO level by class
+        # TODO Mounts: 75% chance of being mounted, in the wilderness.
+        # TODO Special items: Per individual, there is a chance of the adventurer having a special item from each suitable special item sub-table.
+        # The chance per sub-table is 5% per level of the NPC. Rolled items that cannot be used by the adventurer should be ignored (no re-roll).
         return cls([
-            Adventurer.random(d6() + 3, auto_equip) for _ in range(0, d4() + 4)
+            Adventurer.generate(d6() + 3, auto_equip) for _ in range(0, d6() + 3)
         ], place)
+
+    # TODO Hihg
+
+
+# FUTURE: Cleric class?
+Cleric = Muser

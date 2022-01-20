@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from game import World
-from game.creatures import Creature, Humanoid
+from game.creatures import Creature, Humanoid, Unit
 from game.creatures.adventurers import Adventurer, Party
 from game.places.underground import Dungeon
 from game.dice import d4
@@ -64,18 +64,19 @@ if __name__ == '__main__':
         print('=' * 39)
         print()
         for item in party.place.area.contents:
-            if isinstance(item, Creature):
-                print(f"{ui.handle(item):<18} {ui.health_bar(item, 20)}")
-                if '--stats' in sys.argv:
-                    print(ui.statblock(item))
-                if isinstance(item, Humanoid):
-                    if '--inventory' in sys.argv:
-                        ui.print_inventory(item, True)
-                        print('-' * 39)
-                    elif '--arms' in sys.argv:
-                        ui.print_inventory(item)
-                        print('-' * 39)
-                print()
+            if isinstance(item, Unit):
+                for char in item.members:
+                    print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
+                    if '--stats' in sys.argv:
+                        print(ui.statblock(char))
+                    if isinstance(char, Humanoid):
+                        if '--inventory' in sys.argv:
+                            ui.print_inventory(char, True)
+                            print('-' * 39)
+                        elif '--arms' in sys.argv:
+                            ui.print_inventory(char)
+                            print('-' * 39)
+                    print()
 
     for char in party.members:
         print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")

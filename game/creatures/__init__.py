@@ -128,8 +128,8 @@ class Creature:
         return self.TT
 
     @classmethod
-    def encounter(cls, number_appearing: int) -> list['Creature']:
-        return [cls() for _ in range(0, number_appearing)]
+    def encounter(cls, number_appearing: int, place: Place) -> 'Unit':
+        return Unit([cls() for _ in range(0, number_appearing)], place)
 
     def hit(self, damage: int) -> bool:
         while damage > 0 and self.hits_taken < self.hit_dice:
@@ -152,7 +152,7 @@ class Creature:
 
 class FlyingCreature(Creature):
 
-    MV_FLY = 0
+    MV_FLY = 12
 
     def __init__(self) -> None:
         super().__init__()
