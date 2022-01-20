@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .. import Actor, Place
+from .. import Actor, Location
 from ..dice import d6, d20
 from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
@@ -128,7 +128,7 @@ class Creature(Actor):
         return self.TT
 
     @classmethod
-    def encounter(cls, number_appearing: int, place: Place) -> 'Unit':
+    def encounter(cls, number_appearing: int, place: Location) -> 'Unit':
         return Unit([cls() for _ in range(0, number_appearing)], place)
 
     def hit(self, damage: int) -> bool:
@@ -341,13 +341,13 @@ T = TypeVar('T', bound=Creature)
 
 class Unit(Actor, Generic[T]):
 
-    def __init__(self, members: list[T], location: Place) -> None:
+    def __init__(self, members: list[T], location: Location) -> None:
         self.__location = location
         # TODO members should be aware of the unit to which they belong (one at a time)
         self.__members = members
 
     @property
-    def location(self) -> Place:
+    def location(self) -> Location:
         return self.__location
 
     @property
@@ -360,5 +360,5 @@ class Unit(Actor, Generic[T]):
     def dismiss(self, member: T) -> None:
         self.__members.remove(member)
 
-    def move(self, location: Place) -> None:
+    def move(self, location: Location) -> None:
         self.__location = location

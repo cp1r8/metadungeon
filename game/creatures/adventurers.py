@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import Unit
-from .. import Place
+from .. import Location
 from ..dice import d3, d4, d6
 from ..objects import armour, containers, supplies, tools, valuables, weapons
 from .humans import Human
@@ -527,25 +527,25 @@ class Party(Unit[Adventurer]):
         Thief: 1*d6+4,
     }
 
-    def __init__(self, members: list[Adventurer], location: Place) -> None:
+    def __init__(self, members: list[Adventurer], location: Location) -> None:
         super().__init__(members, location)
         self.flee = False
         self.lost = False
 
     @classmethod
-    def assemble(cls, level: int, members: int, place: Place, auto_equip: bool = True) -> 'Party':
+    def assemble(cls, level: int, members: int, place: Location, auto_equip: bool = True) -> 'Party':
         return cls([
             Adventurer.generate(level, auto_equip) for _ in range(0, members)
         ], place)
 
     @classmethod
-    def basic(cls, place: Place, auto_equip: bool = True) -> 'Party':
+    def basic(cls, place: Location, auto_equip: bool = True) -> 'Party':
         return cls([
             Adventurer.generate(d3(), auto_equip) for _ in range(0, d4() + 4)
         ], place)
 
     @classmethod
-    def expert(cls, place: Place, auto_equip: bool = True) -> 'Party':
+    def expert(cls, place: Location, auto_equip: bool = True) -> 'Party':
         # TODO level by class
         # TODO Mounts: 75% chance of being mounted, in the wilderness.
         # TODO Special items: Per individual, there is a chance of the adventurer having a special item from each suitable special item sub-table.

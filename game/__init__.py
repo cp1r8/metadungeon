@@ -7,20 +7,20 @@ class Actor:
     pass
 
 
-class Place:
+class Location:
 
-    def __init__(self, location: 'Place') -> None:
+    def __init__(self, location: 'Location') -> None:
         self.__location = location
 
     @property
-    def location(self) -> 'Place':
+    def location(self) -> 'Location':
         return self.__location
 
     def actions(self, actor: Actor) -> list:
         return []
 
 
-class World(Place):
+class World(Location):
 
     EPOCH = datetime(1001, 1, 1, 0, 0)
 
