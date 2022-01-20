@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
 
-from game.creatures.humans import Human
-from .adventure import Place
-from .adventure.underground import Dungeon
-from .creatures import Creature, Humanoid
-from .creatures.adventurers import Adventurer
-from .objects import Heavy, Stowable, TwoHanded
-from .objects.armour import Armour, Shield
-from .objects.containers import Belt, ResourceContainer, StorageContainer
-from .objects.supplies import Supply
-from .objects.tools import ImprovisedWeapon
-from .objects.weapons import Missile, Weapon
+from game.adventure.underground import Dungeon
+from game.creatures import Creature, Humanoid
+from game.creatures.adventurers import Adventurer
+from game.objects import Heavy, Stowable, TwoHanded
+from game.objects.armour import Armour, Shield
+from game.objects.containers import Belt, ResourceContainer, StorageContainer
+from game.objects.supplies import Supply
+from game.objects.tools import ImprovisedWeapon
+from game.objects.weapons import Missile, Weapon
 from math import ceil, floor
 
 

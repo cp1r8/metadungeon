@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from game import World, ui
+from game import World
 from game.adventure.underground import Dungeon
 from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Adventurer, Party
@@ -9,6 +9,7 @@ from pathlib import Path
 
 import pickle
 import sys
+import ui
 
 
 if __name__ == '__main__':
