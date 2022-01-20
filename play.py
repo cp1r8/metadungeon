@@ -60,7 +60,7 @@ if __name__ == '__main__':
     print(f"{world.time} {type(party.place).__name__}")
 
     if (isinstance(party.place, Dungeon)):
-        ui.print_dungeon_area(party.place)
+        ui.print_dungeon_area(party.place.area)
         print('=' * 39)
         print()
         for item in party.place.area.contents:

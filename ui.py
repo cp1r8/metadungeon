@@ -116,43 +116,43 @@ def print_inventory_item(item, prefix: str = ' '):
             print(f" {mass} · · ·")
 
 
-def print_dungeon_area(place: Dungeon):
+def print_dungeon_area(place: Dungeon.Area):
 
     # if place.flee:
     #     bearing = f"FLEE!"
-    # elif place.lost:
-    if place.lost:
+    # el…
+    if place.place.lost:
         bearing = f"LOST!"
     else:
         bearing = f"{place.z}-{place.y}"
 
-    if isinstance(place.area, Dungeon.Door):
-        if place.area.locked:
+    if isinstance(place, Dungeon.Door):
+        if place.locked:
             area = 'Door: locked'
-        elif place.area.stuck:
+        elif place.stuck:
             area = 'Door: stuck'
         else:
             area = 'Door: open'
-    elif isinstance(place.area, Dungeon.Passage):
-        if place.area.ahead and place.area.branch:
+    elif isinstance(place, Dungeon.Passage):
+        if place.ahead and place.branch:
             area = 'Passage branches'
-        elif place.area.ahead:
+        elif place.ahead:
             area = 'Passage ahead'
-        elif place.area.branch:
+        elif place.branch:
             area = 'Passage turns'
         else:
             area = 'Dead end'
-    elif isinstance(place.area, Dungeon.Stairway):
-        if place.area.up and place.area.down:
+    elif isinstance(place, Dungeon.Stairway):
+        if place.up and place.down:
             area = 'Stairs up/down'
-        elif place.area.up:
+        elif place.up:
             area = 'Stairs up'
-        elif place.area.down:
+        elif place.down:
             area = 'Stairs down'
         else:
             area = 'Stairs blocked'
     else:
-        area = type(place.area).__name__
+        area = type(place).__name__
 
     print(f"{bearing} {area}")
 
