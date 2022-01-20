@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from . import Unit
-from ..dice import d4, d6
+from .. import Place
+from ..dice import d3, d4, d6
 from ..objects import armour, containers, supplies, tools, valuables, weapons
 from .humans import Human
 
@@ -499,4 +500,21 @@ class Thief(Adventurer):
 
 
 class Party(Unit[Adventurer]):
-    pass
+
+    @classmethod
+    def assemble(cls, level: int, members: int, place: Place, auto_equip: bool = True) -> 'Party':
+        return cls([
+            Adventurer.random(level, auto_equip) for _ in range(0, members)
+        ], place)
+
+    @classmethod
+    def basic(cls, place: Place, auto_equip: bool = True) -> 'Party':
+        return cls([
+            Adventurer.random(d3(), auto_equip) for _ in range(0, d4() + 4)
+        ], place)
+
+    @classmethod
+    def expert(cls, place: Place, auto_equip: bool = True) -> 'Party':
+        return cls([
+            Adventurer.random(d6() + 3, auto_equip) for _ in range(0, d4() + 4)
+        ], place)

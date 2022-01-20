@@ -4,21 +4,11 @@ from game import World, ui
 from game.adventure.underground import Dungeon
 from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Adventurer, Party
-from game.dice import d3, d4, d6
+from game.dice import d4
 from pathlib import Path
 
 import pickle
 import sys
-
-
-def random_adventurers(auto_equip: bool) -> list[Adventurer]:
-    if '--basic' in sys.argv:
-        return [Adventurer.random(d3(), auto_equip) for _ in range(0, d4() + 4)]
-    elif '--expert' in sys.argv:
-        return [Adventurer.random(d6() + 3, auto_equip) for _ in range(0, d4() + 4)]
-    elif '--funnel' in sys.argv:
-        return [Adventurer.random(0, auto_equip) for _ in range(0, sum(4*d4) + 4)]
-    return [Adventurer.random(1, auto_equip) for _ in range(0, sum(2*d4) + 4)]
 
 
 if __name__ == '__main__':
@@ -41,7 +31,15 @@ if __name__ == '__main__':
             place = Dungeon()
 
         world.establish(place)
-        party = Party(random_adventurers(auto_equip), place)
+
+        if '--basic' in sys.argv:
+            party = Party.basic(place, auto_equip)
+        elif '--expert' in sys.argv:
+            party = Party.expert(place, auto_equip)
+        elif '--funnel' in sys.argv:
+            party = Party.assemble(0, sum(4*d4) + 4, place, auto_equip)
+        else:
+            party = Party.assemble(1, sum(2*d4) + 4, place, auto_equip)
 
     # for testing
     if '--hit' in sys.argv:
