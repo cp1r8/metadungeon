@@ -336,17 +336,17 @@ class Unit(Generic[T]):
 
     # TODO fleeing state?
 
-    def __init__(self, members: list[T], place: Place) -> None:
+    def __init__(self, members: list[T], location: Place) -> None:
+        self.__location = location
         self.__members = members
-        self.__place = place
+
+    @property
+    def location(self) -> Place:
+        return self.__location
 
     @property
     def members(self) -> list[T]:
         return self.__members.copy()
-
-    @property
-    def place(self) -> Place:
-        return self.__place
 
     def add(self, member: T) -> None:
         self.__members.append(member)

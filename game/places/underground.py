@@ -23,10 +23,10 @@ class Dungeon(Place):
             return self.__contents.copy()
 
         @property
-        def place(self) -> 'Dungeon':
-            place = super().place
-            if isinstance(place, Dungeon):
-                return place
+        def location(self) -> 'Dungeon':
+            location = super().location
+            if isinstance(location, Dungeon):
+                return location
             raise TypeError()
 
         @property
@@ -120,8 +120,8 @@ class Dungeon(Place):
     MAXY = 10
     MAXZ = 10
 
-    def __init__(self, place: Place) -> None:
-        super().__init__(place)
+    def __init__(self, location: Place) -> None:
+        super().__init__(location)
         self.__area = self.Stairway(self, 1, 1, up=1)
         self.__lost = False
 
@@ -292,7 +292,7 @@ class Dungeon(Place):
         else:
             return self.Stairway(self, y, z, up=1)
 
-    def __randomEncounter(self, place: Place) -> Unit:
+    def __randomEncounter(self, location: Place) -> Unit:
         # TODO encounters by level
         creature_type, number_appearing = choice(self.ENCOUNTERS_LV1)
-        return creature_type.encounter(sum(number_appearing), place)
+        return creature_type.encounter(sum(number_appearing), location)

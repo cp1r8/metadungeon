@@ -43,27 +43,27 @@ if __name__ == '__main__':
     # for testing
     if '--hit' in sys.argv:
         damage = sys.argv.count('--hit')
-        if (isinstance(party.place, Dungeon)):
-            for item in party.place.area.contents:
+        if (isinstance(party.location, Dungeon)):
+            for item in party.location.area.contents:
                 if isinstance(item, Creature):
                     item.hit(damage)
         for char in party.members:
             char.hit(damage)
 
-    actions = party.place.actions()
+    actions = party.location.actions()
 
     for arg in sys.argv:
         if arg in actions:
-            getattr(party.place, arg)()
+            getattr(party.location, arg)()
             break
 
-    print(f"{world.time} {type(party.place).__name__}")
+    print(f"{world.time} {type(party.location).__name__}")
 
-    if (isinstance(party.place, Dungeon)):
-        ui.print_dungeon_area(party.place.area)
+    if (isinstance(party.location, Dungeon)):
+        ui.print_dungeon_area(party.location.area)
         print('=' * 39)
         print()
-        for item in party.place.area.contents:
+        for item in party.location.area.contents:
             if isinstance(item, Unit):
                 for char in item.members:
                     print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
@@ -99,5 +99,5 @@ if __name__ == '__main__':
         pickle.dump((world, party), output)
 
     if '--actions' in sys.argv:
-        actions = party.place.actions()
+        actions = party.location.actions()
         print(' / '.join(actions))

@@ -5,12 +5,12 @@ from datetime import datetime
 
 class Place:
 
-    def __init__(self, place: 'Place') -> None:
-        self.__place = place
+    def __init__(self, location: 'Place') -> None:
+        self.__location = location
 
     @property
-    def place(self) -> 'Place':
-        return self.__place
+    def location(self) -> 'Place':
+        return self.__location
 
     def actions(self) -> list:
         return []

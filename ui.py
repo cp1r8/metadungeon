@@ -121,7 +121,7 @@ def print_dungeon_area(place: Dungeon.Area):
     # if place.flee:
     #     bearing = f"FLEE!"
     # el…
-    if place.place.lost:
+    if place.location.lost:
         bearing = f"LOST!"
     else:
         bearing = f"{place.z}-{place.y}"
