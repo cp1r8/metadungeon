@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from game.objects import containers
+from .. import Place
 from ..dice import d6, d20
-from ..objects import armour, DualHanded, Holdable, Wearable
+from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
+from typing import Generic, TypeVar
 
 
 class HoldError(ValueError):
@@ -328,6 +329,25 @@ class Person:
     pass
 
 
-# TODO units
-class Unit:
-    pass
+T = TypeVar('T', bound=Creature)
+
+
+class Unit(Generic[T]):
+
+    def __init__(self, members: list[T], place: Place) -> None:
+        self.__members = members
+        self.__place = place
+
+    @property
+    def members(self) -> list[T]:
+        return self.__members.copy()
+
+    @property
+    def place(self) -> Place:
+        return self.__place
+
+    def add(self, member: T) -> None:
+        self.__members.append(member)
+
+    def remove(self, member: T) -> None:
+        self.__members.remove(member)

@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 
 from game import World, ui
-from game.adventure import Party
 from game.adventure.underground import Dungeon
 from game.creatures import Creature, Humanoid
-from game.creatures.adventurers import Adventurer
+from game.creatures.adventurers import Adventurer, Party
 from game.dice import d3, d4, d6
 from pathlib import Path
 
@@ -12,7 +11,7 @@ import pickle
 import sys
 
 
-def random_adventurers(auto_equip: bool) -> list[Creature]:
+def random_adventurers(auto_equip: bool) -> list[Adventurer]:
     if '--basic' in sys.argv:
         return [Adventurer.random(d3(), auto_equip) for _ in range(0, d4() + 4)]
     elif '--expert' in sys.argv:
@@ -42,7 +41,7 @@ if __name__ == '__main__':
             place = Dungeon()
 
         world.establish(place)
-        party = Party(place, random_adventurers(auto_equip))
+        party = Party(random_adventurers(auto_equip), place)
 
     # for testing
     if '--hit' in sys.argv:

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from . import Unit
 from ..dice import d4, d6
 from ..objects import armour, containers, supplies, tools, valuables, weapons
 from .humans import Human
@@ -495,3 +496,7 @@ class Thief(Adventurer):
         if roll <= 3:
             return [tools.Grapnel()]
         return [tools.Lockpicks()]
+
+
+class Party(Unit[Adventurer]):
+    pass
