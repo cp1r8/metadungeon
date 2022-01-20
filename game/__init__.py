@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class Actor:
@@ -24,10 +24,13 @@ class World(Place):
 
     EPOCH = datetime(1001, 1, 1, 0, 0)
 
-    def __init__(self, time: datetime = EPOCH) -> None:
+    def __init__(self, moment: datetime = EPOCH) -> None:
         super().__init__(self)
-        self.__time = time
+        self.__moment = moment
 
     @property
-    def time(self) -> datetime:
-        return self.__time
+    def moment(self) -> datetime:
+        return self.__moment
+
+    def advance(self, **kwargs) -> None:
+        self.__moment += timedelta(**kwargs)

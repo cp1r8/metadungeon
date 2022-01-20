@@ -44,10 +44,9 @@ def party_location(party: Party):
 
     place = party.location
 
-    # if party.flee:
-    #     bearing = f"FLEE"
-    # el…
-    if party.lost:
+    if party.flee:
+        bearing = f"FLEE"
+    elif party.lost:
         bearing = f"LOST"
     elif isinstance(place, Dungeon.Area):
         bearing = f"{place.z:02d}{place.y:02d}"

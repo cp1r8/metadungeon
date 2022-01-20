@@ -206,6 +206,13 @@ class Humanoid(Creature):
                 return source
             raise TypeError()
 
+        def __call__(self, roll: int) -> bool:
+            if super().__call__(roll):
+                if isinstance(self.source.main_hand, containers.ResourceContainer):
+                    self.source.main_hand.remove(1)
+                return True
+            return False
+
     AT = [(Attack,)]
     HANDS = []
     TORSO = []

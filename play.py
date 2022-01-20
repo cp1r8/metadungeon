@@ -55,9 +55,10 @@ if __name__ == '__main__':
     for arg in sys.argv:
         if arg in actions:
             getattr(party.location, arg)(party)
+            world.advance(minutes=10)
             break
 
-    print(f"{world.time:%Y-%m-%d %H:%M}   {ui.party_location(party)}")
+    print(f"{world.moment:%Y-%m-%d %H:%M} | {ui.party_location(party)}")
     print('=' * 39)
     print()
 

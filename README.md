@@ -21,8 +21,7 @@
 - [ ] Force door
 - [ ] Spike door (?)
 - [ ] Locked door: key, lockpick
-- [ ] Turn counter
-- [ ] Room: monster, treasure, trap
+- [ ] Room: treasure, trap
 - [ ] Trigger trap: types, effects
 - [ ] Door trap
 - [ ] Listen at door (?)
