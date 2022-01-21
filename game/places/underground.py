@@ -41,12 +41,12 @@ class Dungeon(Location):
         def z(self) -> int:
             return self.__z
 
-        def actions(self, party: Party) -> list:
-            actions = []
+        def actions(self, party: Party) -> set:
+            actions = set()
             if party.lost:
-                actions.append('wander')
+                actions.add('wander')
             elif self.y > 1:
-                actions.append('back')
+                actions.add('back')
             return actions
 
         def add(self, item) -> None:
@@ -104,10 +104,10 @@ class Dungeon(Location):
         def stuck(self) -> bool:
             return self.__stuck
 
-        def actions(self, party: Party) -> list:
+        def actions(self, party: Party) -> set:
             actions = super().actions(party)
             if self.open:
-                actions.append('next')
+                actions.add('next')
             return actions
 
         def next(self, party: Party) -> None:
@@ -135,12 +135,12 @@ class Dungeon(Location):
         def branch(self) -> bool:
             return self.__branch
 
-        def actions(self, party: Party) -> list:
+        def actions(self, party: Party) -> set:
             actions = super().actions(party)
             if self.ahead and not party.lost:
-                actions.append('next')
+                actions.add('next')
             if self.branch:
-                actions.append('turn')
+                actions.add('turn')
             return actions
 
         def turn(self, party: Party) -> None:
@@ -151,10 +151,10 @@ class Dungeon(Location):
 
     class Room(Area):
 
-        def actions(self, party: Party) -> list:
+        def actions(self, party: Party) -> set:
             actions = super().actions(party)
             if self.y < self.location.MAXY and not party.lost:
-                actions.append('next')
+                actions.add('next')
             return actions
 
     class Stairway(Area):
@@ -172,14 +172,14 @@ class Dungeon(Location):
         def descend(self) -> int:
             return self.__descend
 
-        def actions(self, party: Party) -> list:
+        def actions(self, party: Party) -> set:
             actions = super().actions(party)
             if self.ascend:
-                actions.append('up')
+                actions.add('up')
             if self.descend:
-                actions.append('down')
+                actions.add('down')
             if self.y < self.location.MAXY and not party.lost:
-                actions.append('next')
+                actions.add('next')
             return actions
 
         def down(self, party: Party) -> None:

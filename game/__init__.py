@@ -16,8 +16,8 @@ class Location:
     def location(self) -> 'Location':
         return self.__location
 
-    def actions(self, actor: Actor) -> list:
-        return []
+    def actions(self, actor: Actor) -> set:
+        return set()
 
 
 class World(Location):
