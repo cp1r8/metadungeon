@@ -45,8 +45,9 @@ if __name__ == '__main__':
         damage = sys.argv.count('--hit')
         if (isinstance(party.location, Dungeon.Area)):
             for item in party.location.contents:
-                if isinstance(item, Creature):
-                    item.hit(damage)
+                if isinstance(item, Unit):
+                    for member in item.members:
+                        member.hit(damage)
         for char in party.members:
             char.hit(damage)
 
@@ -58,7 +59,7 @@ if __name__ == '__main__':
             world.advance(minutes=10)
             break
 
-    print(f"{world.moment:%Y-%m-%d %H:%M} | {ui.party_location(party)}")
+    print(f"{world.now:%Y-%m-%d %H:%M} | {ui.party_location(party)}")
     print('=' * 39)
     print()
 
@@ -66,7 +67,7 @@ if __name__ == '__main__':
         for item in party.location.contents:
             if isinstance(item, Unit):
                 for char in item.members:
-                    print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
+                    print(f"{str(char):<18} {ui.health_bar(char, 20)}")
                     if '--stats' in sys.argv:
                         print(ui.statblock(char))
                     if isinstance(char, Humanoid):
@@ -81,7 +82,7 @@ if __name__ == '__main__':
                 print()
 
     for char in party.members:
-        print(f"{ui.handle(char):<18} {ui.health_bar(char, 20)}")
+        print(f"{str(char):<18} {ui.health_bar(char, 20)}")
         if '--stats' in sys.argv:
             print(ui.statblock(char))
         if isinstance(char, Adventurer):

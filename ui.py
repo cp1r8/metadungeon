@@ -12,14 +12,6 @@ from game.places.underground import Dungeon
 from math import ceil, floor
 
 
-def handle(char: Creature) -> str:
-    if hasattr(char, 'name'):
-        return getattr(char, 'name')
-    if isinstance(char, Adventurer):
-        return char.handle
-    return type(char).__name__
-
-
 def health_bar(char: Creature, width: int) -> str:
 
     if char.hit_dice == 0:

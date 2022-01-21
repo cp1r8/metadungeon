@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .. import Actor, Location
+from .. import Entity, Location
 from ..dice import d6, d20
 from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
@@ -15,7 +15,7 @@ class WearError(ValueError):
     pass
 
 
-class Creature(Actor):
+class Creature(Entity):
 
     class Attack:
 
@@ -64,6 +64,7 @@ class Creature(Actor):
     TT = []
 
     def __init__(self) -> None:
+        super().__init__()
         self.__hits_taken = 0
         self.__partial_hit = False
 
@@ -339,11 +340,11 @@ class Person:
 T = TypeVar('T', bound=Creature)
 
 
-class Unit(Actor, Generic[T]):
+class Unit(Entity, Generic[T]):
 
     def __init__(self, members: list[T], location: Location) -> None:
+        super().__init__()
         self.__location = location
-        # TODO members should be aware of the unit to which they belong (one at a time)
         self.__members = members
 
     @property
