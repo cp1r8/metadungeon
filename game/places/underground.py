@@ -5,6 +5,7 @@ from ..creatures import Unit, animals, humans, monsters, mutants
 from ..creatures.adventurers import Party
 from ..dice import d3, d4, d6, d8, d10, d20
 from random import choice, randint
+from typing import Callable
 
 
 class Dungeon(Location):
@@ -18,13 +19,8 @@ class Dungeon(Location):
 
         def __init__(self, dungeon: 'Dungeon', y: int, z: int) -> None:
             super().__init__(dungeon)
-            self.__contents = []
             self.__y = y
             self.__z = z
-
-        @property
-        def contents(self) -> list:
-            return self.__contents.copy()
 
         @property
         def location(self) -> 'Dungeon':
@@ -41,16 +37,13 @@ class Dungeon(Location):
         def z(self) -> int:
             return self.__z
 
-        def actions(self, party: Party) -> set:
-            actions = set()
+        def actions(self, party: Party) -> dict[str, Callable]:
+            actions = {}
             if party.lost:
-                actions.add('wander')
+                actions['wander'] = lambda: self.wander(party)
             elif self.y > 1:
-                actions.add('back')
+                actions['back'] = lambda: self.back(party)
             return actions
-
-        def add(self, item) -> None:
-            self.__contents.append(item)
 
         def back(self, party: Party, distance: int = 1) -> None:
             if 'back' not in self.actions(party):
@@ -104,10 +97,10 @@ class Dungeon(Location):
         def stuck(self) -> bool:
             return self.__stuck
 
-        def actions(self, party: Party) -> set:
+        def actions(self, party: Party) -> dict[str, Callable]:
             actions = super().actions(party)
             if self.open:
-                actions.add('next')
+                actions['next'] = lambda: self.next(party)
             return actions
 
         def next(self, party: Party) -> None:
@@ -135,12 +128,12 @@ class Dungeon(Location):
         def branch(self) -> bool:
             return self.__branch
 
-        def actions(self, party: Party) -> set:
+        def actions(self, party: Party) -> dict[str, Callable]:
             actions = super().actions(party)
             if self.ahead and not party.lost:
-                actions.add('next')
+                actions['next'] = lambda: self.next(party)
             if self.branch:
-                actions.add('turn')
+                actions['turn'] = lambda: self.turn(party)
             return actions
 
         def turn(self, party: Party) -> None:
@@ -151,10 +144,10 @@ class Dungeon(Location):
 
     class Room(Area):
 
-        def actions(self, party: Party) -> set:
+        def actions(self, party: Party) -> dict[str, Callable]:
             actions = super().actions(party)
             if self.y < self.location.MAXY and not party.lost:
-                actions.add('next')
+                actions['next'] = lambda: self.next(party)
             return actions
 
     class Stairway(Area):
@@ -172,14 +165,14 @@ class Dungeon(Location):
         def descend(self) -> int:
             return self.__descend
 
-        def actions(self, party: Party) -> set:
+        def actions(self, party: Party) -> dict[str, Callable]:
             actions = super().actions(party)
             if self.ascend:
-                actions.add('up')
+                actions['up'] = lambda: self.up(party)
             if self.descend:
-                actions.add('down')
+                actions['down'] = lambda: self.down(party)
             if self.y < self.location.MAXY and not party.lost:
-                actions.add('next')
+                actions['next'] = lambda: self.next(party)
             return actions
 
         def down(self, party: Party) -> None:

@@ -362,4 +362,6 @@ class Unit(Entity, Generic[T]):
         self.__members.remove(member)
 
     def move(self, location: Location) -> None:
+        self.__location.remove(self)
         self.__location = location
+        location.add(self)

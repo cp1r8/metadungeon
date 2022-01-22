@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime, timedelta
+from typing import Callable
 
 import itertools
 
@@ -30,19 +31,30 @@ class Entity:
             return getattr(self, 'handle')
         return f"{type(self).__name__}-{self.id:04X}"
 
+    def actions(self, actor: 'Entity') -> dict[str, Callable]:
+        return {}
+
 
 class Location(Entity):
 
     def __init__(self, location: 'Location') -> None:
         super().__init__()
+        self.__contents = []
         self.__location = location
+
+    @property
+    def contents(self) -> list[Entity]:
+        return self.__contents.copy()
 
     @property
     def location(self) -> 'Location':
         return self.__location
 
-    def actions(self, actor: Entity) -> set:
-        return set()
+    def add(self, entity: Entity) -> None:
+        self.__contents.append(entity)
+
+    def remove(self, entity: Entity) -> None:
+        self.__contents.remove(entity)
 
 
 class World(Location):
