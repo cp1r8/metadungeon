@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import Humanoid, Person, Unit, adventurers
-from .. import Location
+from .. import Place
 from ..dice import d3
 from ..objects import armour, weapons
 import random
@@ -33,9 +33,9 @@ class Acolyte(Human):
     TORSO = [armour.Plate]
 
     @classmethod
-    def encounter(cls, number_appearing: int, place: Location) -> Unit:
+    def encounter(cls, number_appearing: int, location: Place) -> Unit:
         '''Leader: Groups of 4+ are led by a higher level cleric (1d10: 1-4: 2nd level, 5-7: 3rd level, 8-9: 4th level, 10: 5th level).'''
-        unit = super().encounter(number_appearing, place)
+        unit = super().encounter(number_appearing, location)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
             unit.assign(adventurers.Cleric.generate(level, True))
@@ -59,9 +59,9 @@ class Bandit(Human):
     # TODO Trickery: Use disguise or trickery to surprise victims.
 
     @classmethod
-    def encounter(cls, number_appearing: int, place: Location) -> Unit:
+    def encounter(cls, number_appearing: int, location: Place) -> Unit:
         '''Leader: May have a leader of 2nd level or higher (any human class).'''
-        unit = super().encounter(number_appearing, place)
+        unit = super().encounter(number_appearing, location)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
             unit.assign(adventurers.Adventurer.generate(level, True))

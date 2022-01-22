@@ -42,9 +42,9 @@ class Entity:
         return cls.__index.get(id)
 
 
-class Location(Entity):
+class Place(Entity):
 
-    def __init__(self, location: 'Location') -> None:
+    def __init__(self, location: 'Place') -> None:
         super().__init__()
         self.__entities = []
         self.__location = location
@@ -54,7 +54,7 @@ class Location(Entity):
         return self.__entities.copy()
 
     @property
-    def location(self) -> 'Location':
+    def location(self) -> 'Place':
         return self.__location
 
     def add(self, entity: Entity) -> None:
@@ -64,7 +64,7 @@ class Location(Entity):
         self.__entities.remove(entity)
 
 
-class World(Location):
+class World(Place):
 
     EPOCH = datetime(1001, 1, 1, 0, 0)
 

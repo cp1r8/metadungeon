@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .. import Entity, Location
+from .. import Entity, Place
 from ..dice import d6, d20
 from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
@@ -129,8 +129,8 @@ class Creature(Entity):
         return self.TT
 
     @classmethod
-    def encounter(cls, number_appearing: int, place: Location) -> 'Unit':
-        return Unit([cls() for _ in range(0, number_appearing)], place)
+    def encounter(cls, number_appearing: int, location: Place) -> 'Unit':
+        return Unit([cls() for _ in range(0, number_appearing)], location)
 
     def hit(self, damage: int) -> bool:
         while damage > 0 and self.hits_taken < self.hit_dice:
@@ -342,13 +342,13 @@ T = TypeVar('T', bound=Creature)
 
 class Unit(Entity, Generic[T]):
 
-    def __init__(self, members: list[T], location: Location) -> None:
+    def __init__(self, members: list[T], location: Place) -> None:
         super().__init__()
         self.__location = location
         self.__members = members
 
     @property
-    def location(self) -> Location:
+    def location(self) -> Place:
         return self.__location
 
     @property
@@ -361,7 +361,7 @@ class Unit(Entity, Generic[T]):
     def dismiss(self, member: T) -> None:
         self.__members.remove(member)
 
-    def move(self, location: Location) -> None:
+    def move(self, location: Place) -> None:
         self.__location.remove(self)
         self.__location = location
         location.add(self)

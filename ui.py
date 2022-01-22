@@ -34,44 +34,42 @@ def health_bar(char: Creature, width: int) -> str:
 
 def party_location(party: Party):
 
-    place = party.location
-
     if party.flee:
         bearing = f"FLEE"
     elif party.lost:
         bearing = f"LOST"
-    elif isinstance(place, Dungeon.Area):
-        bearing = f"{place.z:02d}{place.y:02d}"
+    elif isinstance(party.location, Dungeon.Area):
+        bearing = f"{party.location.z:02d}{party.location.y:02d}"
     else:
         bearing = '0000'
 
-    if isinstance(place, Dungeon.Door):
-        if place.locked:
+    if isinstance(party.location, Dungeon.Door):
+        if party.location.locked:
             area = 'Door: locked'
-        elif place.stuck:
+        elif party.location.stuck:
             area = 'Door: stuck'
         else:
             area = 'Door: open'
-    elif isinstance(place, Dungeon.Passage):
-        if place.ahead and place.branch:
+    elif isinstance(party.location, Dungeon.Passage):
+        if party.location.ahead and party.location.branch:
             area = 'Intersection'
-        elif place.ahead:
+        elif party.location.ahead:
             area = 'Passage ahead'
-        elif place.branch:
+        elif party.location.branch:
             area = 'Passage turns'
         else:
             area = 'Dead end'
-    elif isinstance(place, Dungeon.Stairway):
-        if place.ascend and place.descend:
+    elif isinstance(party.location, Dungeon.Stairway):
+        if party.location.ascend and party.location.descend:
             area = 'Stairs up/down'
-        elif place.ascend:
+        elif party.location.ascend:
             area = 'Stairs up'
-        elif place.descend:
+        elif party.location.descend:
             area = 'Stairs down'
         else:
             area = 'Stairs blocked'
     else:
-        area = type(place).__name__
+        area = type(party.location).__name__
 
     return f"{bearing} {area}"
 

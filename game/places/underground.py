@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .. import Location
+from .. import Place
 from ..creatures import Unit, animals, humans, monsters, mutants
 from ..creatures.adventurers import Party
 from ..dice import d3, d4, d6, d8, d10, d20
@@ -8,14 +8,14 @@ from random import choice, randint
 from typing import Callable
 
 
-class Dungeon(Location):
+class Dungeon(Place):
 
     # TODO door/passage trap?
     # TODO flee
     # TODO rest
     # TODO search
 
-    class Area(Location):
+    class Area(Place):
 
         def __init__(self, dungeon: 'Dungeon', y: int, z: int) -> None:
             super().__init__(dungeon)
@@ -225,7 +225,7 @@ class Dungeon(Location):
     MAXY = 10
     MAXZ = 10
 
-    def __init__(self, location: Location) -> None:
+    def __init__(self, location: Place) -> None:
         super().__init__(location)
         self.__entrance = self.Stairway(self, 1, 1, ascend=1)
 
