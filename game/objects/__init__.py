@@ -9,11 +9,7 @@ class Heavy:
     pass
 
 
-class Portable:
-    '''Able to be carried in some way.'''
-
-
-class Holdable(Portable):
+class Holdable:
     '''Able to be held in one‘s hand(s).'''
 
 
@@ -57,7 +53,7 @@ class Fluid(Substance):
     '''A substance that flows.'''
 
 
-class Stowable(Portable):
+class Stowable:
     '''Able to be stored in a storage container.'''
 
     SLOTS_REQUIRED = 1
@@ -67,7 +63,7 @@ class Stowable(Portable):
         return self.SLOTS_REQUIRED
 
 
-class Wearable(Portable):
+class Wearable:
     '''Able to be worn on one’s person.'''
 
     ON = '-'
