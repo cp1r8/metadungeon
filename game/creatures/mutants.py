@@ -3,7 +3,7 @@
 from . import Creature, FlyingCreature
 
 
-class GiantGecko(Creature):
+class Gecko(Creature):
     '''5’ long, carnivorous, nocturnal lizards. Light blue scales with orange spots.'''
 
     class Bite(Creature.Attack):
@@ -22,7 +22,7 @@ class GiantGecko(Creature):
     # TODO Cling: Climb walls, trees, etc. and drop on victims.
 
 
-class GiantCrabSpider(Creature):
+class CrabSpider(Creature):
     '''5’ long hunting spiders that can change their colour to match their surroundings.'''
 
     class Bite(Creature.Attack):
@@ -43,7 +43,7 @@ class GiantCrabSpider(Creature):
     # TODO Cling: Can walk on walls and ceilings.
 
 
-class GiantFireBeetle(Creature):
+class FireBeetle(Creature):
     '''Two and a half feet long. Commonly found underground.'''
 
     class Bite(Creature.Attack):
@@ -61,8 +61,8 @@ class GiantFireBeetle(Creature):
     # TODO Glowing nodules: Three glowing glands (two above the eyes, one on the abdomen) cast light in a 10’ radius. If removed, keep glowing for 1d6 days.
 
 
-class GiantKillerBee(FlyingCreature):
-    '''Giant (foot-long) bees of aggressive temperament. Build hives underground.'''
+class KillerBee(FlyingCreature):
+    '''Enormous (foot-long) bees of aggressive temperament. Build hives underground.'''
 
     class Sting(Creature.Attack):
         DAMAGE = 2
@@ -85,16 +85,16 @@ class GiantKillerBee(FlyingCreature):
     # TODO Guards: At least 10 bees (4 or more of which have 1HD) remain in or near the hive to protect the queen.
 
 
-class GiantKillerBeeDrone(GiantKillerBee):
+class KillerBeeDrone(KillerBee):
     HD = 1
 
 
-class GiantKillerBeeQueen(GiantKillerBee):
+class KillerBeeQueen(KillerBee):
     # TODO The queen does not die when she stings.
     HD = 2
 
 
-class GiantShrew(Creature):
+class Shrew(Creature):
     '''Brown-furred, mole-like, insectivores with long snouts. Dwell underground; skilled burrowers.'''
 
     class Bite(Creature.Attack):

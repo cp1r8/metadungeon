@@ -87,6 +87,7 @@ class Adventurer(Human):
             f"{self.__dex-3:X}",
             f"{self.__con-3:X}",
             f"{self.__cha-3:X}",
+            f".{self.id:04X}",
         ])
 
     @property

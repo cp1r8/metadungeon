@@ -48,7 +48,7 @@ if __name__ == '__main__':
     # for testing
     if '--zap' in sys.argv:
         damage = sys.argv.count('--zap')
-        for entity in party.location.contents:
+        for entity in party.location.entities:
             if isinstance(entity, Unit):
                 for member in entity.members:
                     member.hit(damage)
@@ -69,7 +69,7 @@ if __name__ == '__main__':
     print('=' * 39)
     print()
 
-    for entity in party.location.contents:
+    for entity in party.location.entities:
         if isinstance(entity, Unit):
             for member in entity.members:
                 print(f"{str(member):<18} {ui.health_bar(member, 20)}")
