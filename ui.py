@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from game.creatures import Creature, Humanoid
-from game.creatures.adventurers import Adventurer, Party
+from game.creatures.adventurers import Party
 from game.objects import Heavy, Stowable, TwoHanded
 from game.objects.armour import Armour, Shield
 from game.objects.containers import Belt, ResourceContainer, StorageContainer

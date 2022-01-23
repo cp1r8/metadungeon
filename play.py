@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from game import World
-from game.creatures import Humanoid, Unit
+from game.creatures import Creature, Humanoid, Unit
 from game.creatures.adventurers import Adventurer, Party
 from game.places.underground import Dungeon
 from game.dice import d4
@@ -70,6 +70,8 @@ if __name__ == '__main__':
     print()
 
     for entity in party.location.entities:
+        print(str(entity))
+        print()
         if isinstance(entity, Unit):
             for member in entity.members:
                 print(f"{str(member):<18} {ui.health_bar(member, 20)}")
@@ -87,9 +89,6 @@ if __name__ == '__main__':
                         ui.print_inventory(member)
                         print('-' * 39)
                 print()
-        else:
-            print(str(entity))
-            print()
         print('=' * 39)
         print()
 

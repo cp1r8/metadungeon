@@ -32,22 +32,23 @@ class Adventurer(Human):
 
     def __init__(
         self,
-        strength: int,
-        intelligence: int,
-        wisdom: int,
-        dexterity: int,
-        constitution: int,
-        charisma: int,
-        level: int
+        location: Place,
+        level: int,
+        strength: int = 10,
+        intelligence: int = 10,
+        wisdom: int = 10,
+        dexterity: int = 10,
+        constitution: int = 10,
+        charisma: int = 10,
     ) -> None:
-        super().__init__()
+        super().__init__(location)
+        self.__lvl = level
         self.__str = strength
         self.__int = intelligence
         self.__wis = wisdom
         self.__dex = dexterity
         self.__con = constitution
         self.__cha = charisma
-        self.__lvl = level
 
     @property
     def attack_target_value(self) -> int:
@@ -118,14 +119,15 @@ class Adventurer(Human):
     # TODO Adventurer must select a character class after gaining XP on an adventure.
 
     @classmethod
-    def generate(cls, level: int, auto_equip: bool = True) -> 'Adventurer':
+    def generate(cls, location: Place, level: int, auto_equip: bool = True) -> 'Adventurer':
 
         if cls is Adventurer and level > 0:
             cls = choice([Fighter, Fighter, Muser, Thief])
 
         adventurer = cls(
+            location,
+            0 if cls is Adventurer else max(1, level),
             *(sum(3*d6) for _ in range(6)),
-            level=0 if cls is Adventurer else max(1, level),
         )
 
         if auto_equip:
@@ -515,7 +517,7 @@ class Thief(Adventurer):
         return [tools.Lockpicks()]
 
 
-class Party(Unit[Adventurer]):
+class Party(Unit):
 
     CLASS_EXPERT_LEVELS = {
         # Barbarian: 1*d6+6, # Dwarf
@@ -528,22 +530,24 @@ class Party(Unit[Adventurer]):
         Thief: 1*d6+4,
     }
 
-    def __init__(self, members: list[Adventurer], location: Place) -> None:
-        super().__init__(members, location)
+    def __init__(self, location: Place) -> None:
+        super().__init__(location)
         self.flee = False
         self.lost = False
 
     @classmethod
     def assemble(cls, level: int, members: int, location: Place, auto_equip: bool = True) -> 'Party':
-        return cls([
-            Adventurer.generate(level, auto_equip) for _ in range(0, members)
-        ], location)
+        party = cls(location)
+        for _ in range(0, members):
+            party.add(Adventurer.generate(party, level, auto_equip))
+        return party
 
     @classmethod
     def basic(cls, location: Place, auto_equip: bool = True) -> 'Party':
-        return cls([
-            Adventurer.generate(d3(), auto_equip) for _ in range(0, d4() + 4)
-        ], location)
+        party = cls(location)
+        for _ in range(0, d4() + 4):
+            party.add(Adventurer.generate(party, d3(), auto_equip))
+        return party
 
     @classmethod
     def expert(cls, location: Place, auto_equip: bool = True) -> 'Party':
@@ -551,11 +555,12 @@ class Party(Unit[Adventurer]):
         # TODO Mounts: 75% chance of being mounted, in the wilderness.
         # TODO Special items: Per individual, there is a chance of the adventurer having a special item from each suitable special item sub-table.
         # The chance per sub-table is 5% per level of the NPC. Rolled items that cannot be used by the adventurer should be ignored (no re-roll).
-        return cls([
-            Adventurer.generate(d6() + 3, auto_equip) for _ in range(0, d6() + 3)
-        ], location)
+        party = cls(location)
+        for _ in range(0, d6() + 3):
+            party.add(Adventurer.generate(party, d6() + 3, auto_equip))
+        return party
 
-    # TODO Hihg
+    # TODO high-level adventurers
 
 
 # FUTURE: Cleric class?

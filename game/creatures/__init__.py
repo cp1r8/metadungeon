@@ -4,7 +4,6 @@ from .. import Entity, Place
 from ..dice import d6, d20
 from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
-from typing import Generic, TypeVar
 
 
 class HoldError(ValueError):
@@ -63,8 +62,8 @@ class Creature(Entity):
     XP = 0
     TT = []
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, location: Place) -> None:
+        super().__init__(location)
         self.__hits_taken = 0
         self.__partial_hit = False
 
@@ -130,7 +129,10 @@ class Creature(Entity):
 
     @classmethod
     def encounter(cls, number_appearing: int, location: Place) -> 'Unit':
-        return Unit([cls() for _ in range(0, number_appearing)], location)
+        unit = Unit(location)
+        for _ in range(0, number_appearing):
+            unit.add(cls(unit))
+        return unit
 
     def hit(self, damage: int) -> bool:
         while damage > 0 and self.hits_taken < self.hit_dice:
@@ -155,8 +157,8 @@ class FlyingCreature(Creature):
 
     MV_FLY = 12
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, location: Place) -> None:
+        super().__init__(location)
         self.__flying = False
 
     @property
@@ -219,8 +221,8 @@ class Humanoid(Creature):
     TORSO = []
     WAIST = []
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, location: Place) -> None:
+        super().__init__(location)
         self.__main_hand = None
         self.__off_hand = None
         self.__shoulders = None
@@ -337,31 +339,12 @@ class Person:
     pass
 
 
-T = TypeVar('T', bound=Creature)
-
-
-class Unit(Entity, Generic[T]):
-
-    def __init__(self, members: list[T], location: Place) -> None:
-        super().__init__()
-        self.__location = location
-        self.__members = members
+class Unit(Place):
 
     @property
-    def location(self) -> Place:
-        return self.__location
+    def members(self) -> list[Creature]:
+        return [entity for entity in self.entities if isinstance(entity, Creature)]
 
     @property
-    def members(self) -> list[T]:
-        return self.__members.copy()
-
-    def assign(self, member: T) -> None:
-        self.__members.append(member)
-
-    def dismiss(self, member: T) -> None:
-        self.__members.remove(member)
-
-    def move(self, location: Place) -> None:
-        self.__location.remove(self)
-        self.__location = location
-        location.add(self)
+    def movement_rate(self) -> int:
+        return min(member.movement_rate for member in self.members)

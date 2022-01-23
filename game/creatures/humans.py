@@ -38,7 +38,7 @@ class Acolyte(Human):
         unit = super().encounter(number_appearing, location)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
-            unit.assign(adventurers.Cleric.generate(level, True))
+            unit.add(adventurers.Cleric.generate(unit, level))
         return unit
 
 
@@ -64,7 +64,7 @@ class Bandit(Human):
         unit = super().encounter(number_appearing, location)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
-            unit.assign(adventurers.Adventurer.generate(level, True))
+            unit.add(adventurers.Adventurer.generate(unit, level))
         return unit
 
 
