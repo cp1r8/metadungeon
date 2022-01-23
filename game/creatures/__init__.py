@@ -342,8 +342,8 @@ class Person:
 class Unit(Place):
 
     @property
-    def members(self) -> list[Creature]:
-        return [entity for entity in self.entities if isinstance(entity, Creature)]
+    def members(self) -> set[Creature]:
+        return {entity for entity in self.entities if isinstance(entity, Creature)}
 
     @property
     def movement_rate(self) -> int:

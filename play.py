@@ -69,11 +69,11 @@ if __name__ == '__main__':
     print('=' * 39)
     print()
 
-    for entity in party.location.entities:
+    for entity in sorted(party.location.entities, key=lambda entity: entity.id):
         print(str(entity))
         print()
         if isinstance(entity, Unit):
-            for member in entity.members:
+            for member in sorted(entity.members, key=lambda member: member.id):
                 print(f"{str(member):<18} {ui.health_bar(member, 20)}")
                 if '--stats' in sys.argv:
                     print(ui.statblock(member))

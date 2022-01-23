@@ -56,14 +56,14 @@ class Place(Entity):
 
     def __init__(self, location: 'Place') -> None:
         super().__init__(location)
-        self.__entities = []
+        self.__entities = set()
 
     @property
-    def entities(self) -> list[Entity]:
+    def entities(self) -> set[Entity]:
         return self.__entities.copy()
 
     def add(self, entity: Entity) -> None:
-        self.__entities.append(entity)
+        self.__entities.add(entity)
 
     def remove(self, entity: Entity) -> None:
         self.__entities.remove(entity)
