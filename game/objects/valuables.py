@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import Heavy, Stowable
+from .. import Entity
 from .supplies import Supply
 
 
@@ -79,7 +80,7 @@ class Diamonds(Gems):
     VALUE_IN_COPPER = 1000 * Gold.VALUE_IN_COPPER
 
 
-class Jewellery(Stowable, Valuable):
+class Jewellery(Entity, Stowable, Valuable):
 
     # TODO small… wearable?
     # TODO head: earring, crown
@@ -90,6 +91,7 @@ class Jewellery(Stowable, Valuable):
 
     # TODO value=3d6
     def __init__(self, value: int) -> None:
+        super().__init__()
         self.__damaged = False
         self.__value = value
 

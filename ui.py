@@ -2,12 +2,12 @@
 
 from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Party
-from game.objects import Heavy, Stowable, TwoHanded
+from game.objects import Heavy, Ranged, Stowable, TwoHanded
 from game.objects.armour import Armour, Shield
 from game.objects.containers import Belt, ResourceContainer, StorageContainer
 from game.objects.supplies import Supply
 from game.objects.tools import ImprovisedWeapon
-from game.objects.weapons import Missile, Weapon
+from game.objects.weapons import Weapon
 from game.places.underground import Dungeon
 from math import ceil, floor
 
@@ -122,7 +122,7 @@ def print_inventory_item(item, prefix: str = ' '):
         name = f"AC{-item.armour_class_modifier:+d} {name}"
     elif isinstance(item, Weapon) and \
             (not isinstance(item, ImprovisedWeapon) or prefix in ('%', '>', '/')):
-        if isinstance(item, Missile):
+        if isinstance(item, Ranged):
             name = f"@{item.ranges[0]} {name}"
         name = f"D{item.damage} {name}"
 

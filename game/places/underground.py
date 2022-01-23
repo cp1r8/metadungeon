@@ -300,4 +300,4 @@ class Dungeon(Place):
     def __randomEncounter(self, location: Area) -> Unit:
         # TODO encounters by level
         creature_type, number_appearing = choice(self.ENCOUNTERS_LV1)
-        return creature_type.encounter(sum(number_appearing), location)
+        return creature_type.encounter(location, sum(number_appearing))

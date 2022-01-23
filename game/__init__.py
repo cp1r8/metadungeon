@@ -12,18 +12,13 @@ class Entity:
     __id_max = 0
     __index = {}
 
-    def __init__(self, location: 'Place') -> None:
+    def __init__(self) -> None:
         self.__id = next(Entity.__identity)
         self.__index[self.id] = self
-        self.__location = location
 
     @property
     def id(self) -> int:
         return self.__id
-
-    @property
-    def location(self) -> 'Place':
-        return self.__location
 
     def __setstate__(self, state):
         self.__dict__.update(state)
@@ -46,13 +41,24 @@ class Entity:
     def find(cls, id: int) -> Optional['Entity']:
         return cls.__index.get(id)
 
+
+class Motile(Entity):
+
+    def __init__(self, location: 'Place') -> None:
+        super().__init__()
+        self.__location = location
+
+    @property
+    def location(self) -> 'Place':
+        return self.__location
+
     def move(self, location: 'Place') -> None:
         self.__location.remove(self)
         self.__location = location
-        location.add(self)
+        self.__location.add(self)
 
 
-class Place(Entity):
+class Place(Motile):
 
     def __init__(self, location: 'Place') -> None:
         super().__init__(location)
@@ -71,7 +77,7 @@ class Place(Entity):
 
 class World(Place):
 
-    EPOCH = datetime(1001, 1, 1, 0, 0)
+    EPOCH = datetime(1, 1, 1, 0, 0)
 
     def __init__(self, now: datetime = EPOCH) -> None:
         super().__init__(self)
@@ -81,5 +87,5 @@ class World(Place):
     def now(self) -> datetime:
         return self.__now
 
-    def advance(self, **kwargs) -> None:
+    def age(self, **kwargs) -> None:
         self.__now += timedelta(**kwargs)

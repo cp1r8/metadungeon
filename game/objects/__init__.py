@@ -53,6 +53,20 @@ class Fluid(Substance):
     '''A substance that flows.'''
 
 
+class Ranged:
+    '''Able to be used at a distance.'''
+
+    RANGES = (0, 0, 0)
+
+    @property
+    def ranges(self) -> tuple:
+        return self.RANGES
+
+
+class Throwable(Ranged):
+    '''Able to be thrown a certain distance.'''
+
+
 class Stowable:
     '''Able to be stored in a storage container.'''
 

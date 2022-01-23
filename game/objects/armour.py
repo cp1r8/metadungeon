@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 
 from . import Heavy, Holdable, Wearable
+from .. import Entity
 
 
-class Armour(Wearable):
+class Armour(Entity, Wearable):
 
     AC = 9
     MV = 12
@@ -35,7 +36,7 @@ class Plate(Armour, Heavy):
     ON = 'torso'
 
 
-class Shield(Holdable):
+class Shield(Entity, Holdable):
 
     # TODO carry on shoulders?
     # TODO improvised weapon?

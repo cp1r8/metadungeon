@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from . import DualHanded, Fluid, Holdable, Quantifiable, Stowable, Substance, Wearable
+from . import DualHanded, Fluid, Holdable, Quantifiable, Stowable, Substance, Throwable, Wearable
+from .. import Entity
 from typing import Generic, TypeVar
-
-
-T = TypeVar('T', bound=Quantifiable)
 
 
 class ContainerError(ValueError):
     pass
+
+
+T = TypeVar('T', bound=Quantifiable)
 
 
 class ResourceContainer(Generic[T]):
@@ -57,11 +58,32 @@ class ResourceContainer(Generic[T]):
             self.__contents = item
 
 
-class StorageContainer:
+F = TypeVar('F', bound=Fluid)
+
+
+class FluidContainer(Entity, ResourceContainer[F], Generic[F]):
+
+    def __init__(self):
+        Entity.__init__(self)
+        ResourceContainer.__init__(self)
+
+
+S = TypeVar('S', bound=Substance)
+
+
+class SubstanceContainer(Entity, ResourceContainer[S], Generic[S]):
+
+    def __init__(self):
+        Entity.__init__(self)
+        ResourceContainer.__init__(self)
+
+
+class StorageContainer(Entity):
 
     CAPACITY = 1
 
     def __init__(self) -> None:
+        super().__init__()
         self.__items = []
 
     @property
@@ -103,6 +125,7 @@ class StowableContainer(StorageContainer, Stowable):
 
 
 class Backpack(StorageContainer, Wearable):
+    '''Has two straps and can be worn on the back, keeping the hands free.'''
     CAPACITY = 12
     ON = 'shoulders'
 
@@ -124,7 +147,7 @@ class SmallSack(StowableContainer, Holdable):
     CAPACITY = 6
 
 
-class Flask(ResourceContainer[Fluid], Stowable):
+class Flask(FluidContainer, Stowable, Throwable):
 
     CAPACITY = 1
 
@@ -134,8 +157,10 @@ class Flask(ResourceContainer[Fluid], Stowable):
         self.store(contents)
         return self
 
+    # TODO Throwing: An oil flask may be lit on fire and thrown
 
-class Vial(ResourceContainer[Substance], Stowable):
+
+class Vial(SubstanceContainer, Stowable):
 
     CAPACITY = 1
 
@@ -146,5 +171,6 @@ class Vial(ResourceContainer[Substance], Stowable):
         return self
 
 
-class Waterskin(ResourceContainer[Fluid], Stowable):
+class Waterskin(FluidContainer, Stowable):
+    '''This container, made of hide, will hold 2 pints (1 quart) of fluid.'''
     CAPACITY = 2

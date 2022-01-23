@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 
+from game import Entity
 from . import Holdable, Stowable, TwoHanded
-from .containers import ResourceContainer
+from .containers import FluidContainer
 from .supplies import Oil
 from .weapons import Weapon
 
@@ -28,41 +29,43 @@ class LightSource:
             self.__lit = True
 
 
-class Crowbar(Stowable, TwoHanded, ImprovisedWeapon):
-    pass
+class Crowbar(ImprovisedWeapon, Stowable, TwoHanded):
+    '''2–3’ long and made of solid iron. Can be used for forcing doors and other objects open.'''
 
 
-class Grapnel(Holdable, Stowable, ImprovisedWeapon):
-    pass
+class Grapnel(ImprovisedWeapon, Holdable, Stowable):
+    '''Has 3 or 4 prongs. Can be used for anchoring a rope.'''
 
 
-class Lantern(ResourceContainer[Oil], Holdable, Stowable, LightSource):
+class Lantern(FluidContainer[Oil], Holdable, LightSource, Stowable):
     CAPACITY = 2
+    # TODO Can be closed to hide the light.
 
 
-class Lockpicks(Holdable, Stowable):
+class Lockpicks(Entity, Holdable, Stowable):
     # TODO small
     pass
 
 
-class Mallet(Holdable, Stowable, ImprovisedWeapon):
+class Mallet(ImprovisedWeapon, Holdable, Stowable):
+    '''Can be used for construction or for driving in spikes.'''
     # TODO small
-    pass
 
 
-class Mirror(Holdable, Stowable):
+class Mirror(Entity, Holdable, Stowable):
+    '''Useful for looking around cor- ners or for reflecting light.'''
     # TODO small
-    pass
 
 
-class Pole(Stowable, TwoHanded):
+class Pole(Entity, Stowable, TwoHanded):
+    '''A 2” thick wooden pole useful for poking and prodding suspicious items.'''
     # TODO bulky?
-    pass
 
 
-class Tinderbox(Holdable, Stowable):
-    pass
+class Tinderbox(Entity, Holdable, Stowable):
+    '''Used to light fires, including torches.'''
+    # TODO Using takes one round. There is a 2-in-6 chance of success per round.
 
 
-class Torch(Holdable, LightSource, ImprovisedWeapon):
+class Torch(ImprovisedWeapon, Holdable, LightSource):
     pass

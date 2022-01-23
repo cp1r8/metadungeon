@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .. import Entity, Place
+from .. import Motile, Place
 from ..dice import d6, d20
 from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
@@ -14,7 +14,7 @@ class WearError(ValueError):
     pass
 
 
-class Creature(Entity):
+class Creature(Motile):
 
     class Attack:
 
@@ -128,7 +128,7 @@ class Creature(Entity):
         return self.TT
 
     @classmethod
-    def encounter(cls, number_appearing: int, location: Place) -> 'Unit':
+    def encounter(cls, location: Place, number_appearing: int) -> 'Unit':
         unit = Unit(location)
         for _ in range(0, number_appearing):
             unit.add(cls(unit))
