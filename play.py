@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from game import World
-from game.creatures import Creature, Humanoid, Unit
+from game.creatures import Humanoid, Unit
 from game.creatures.adventurers import Adventurer, Party
 from game.places.underground import Dungeon
 from game.dice import d4
@@ -87,7 +87,6 @@ if __name__ == '__main__':
                         print('-' * 39)
                     elif '--arms' in sys.argv:
                         ui.print_inventory(member)
-                        print('-' * 39)
                 print()
         print('=' * 39)
         print()
