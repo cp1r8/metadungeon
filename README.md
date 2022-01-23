@@ -44,13 +44,16 @@
 - [ ] Wearable jewellery
 
 
-# Weight/Money
+## Weight/Money
 
 - paragon = flawless diamond, no inclusions, at least 100 carats (20g) mass
-- 1600 "coins" = 160 lbs = ~72.6 kg
+- 1600 "coins" = 160 lbs = ~72.6 kg (MV0)
+- 1400 "coins" = 140 lbs = ~63.5 kg
 - 1200 "coins" = 120 lbs = ~54.4 kg
-- 600 "coins" = 60 lbs = ~27.2 kg
-- 400 "coins" = 40 lbs = ~18.1 kg
+- 1000 "coins" = 100 lbs = ~45.4 kg (MV3)
+- 800 "coins" = 80 lbs = ~36.3 kg (MV6)
+- 600 "coins" = 60 lbs = ~27.2 kg (MV9)
+- 400 "coins" = 40 lbs = ~18.1 kg (MV12)
 - 100 "coins" = 10 lbs = ~4.54 kg
 - 10 "coins" = 1 lbs = ~454 g
 - 1 "coin" = ~45 g
@@ -73,3 +76,9 @@
 - 1 penny (24 grains, 1/20 ozt) = 1.56g
 - cp sp ep gp pp pg sg eg rg dg
 - ¢  $  €  ¤  £  ☻  ♠  ♣  ♥  ♦
+
+
+## Ideas
+
+- [Dirt Simple Deterministic Group Initiative](https://attnam.blogspot.com/2022/01/dirt-simple-deterministic-group.html)
+- [Extremely simple combat maneuvers](https://www.reddit.com/r/osr/comments/rxii0s/extremely_simple_combat_maneuvers_blog/)
