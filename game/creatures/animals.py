@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from . import Creature
+from . import Creature, Unit
 
 
 class DireWolf(Creature):
@@ -58,6 +58,16 @@ class Wolf(Creature):
     MV = 18
     SV = 14
     ML = 6
+    ML_PACK = 8
     XP = 25
+
+    @property
+    def morale_rating(self) -> int:
+        '''Strength in numbers: Packs of 4 or more wolves have morale 8.'''
+        if isinstance(self.location, Unit):
+            if len({member for member in self.location.members if isinstance(member, Wolf)}) >= 4:
+                return self.ML_PACK
+        # TODO If the pack is reduced to less than 50% of its original size, this morale bonus is lost.
+        return super().morale_rating
+
     # TODO Training: At the referee’s discretion, captured cubs may be trained like dogs. Wolves are difficult to train.
-    # TODO Strength in numbers: Packs of 4 or more wolves have morale 8. If the pack is reduced to less than 50% of its original size, this morale bonus is lost.
