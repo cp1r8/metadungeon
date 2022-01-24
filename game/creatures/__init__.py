@@ -347,4 +347,4 @@ class Unit(Place):
 
     @property
     def movement_rate(self) -> int:
-        return min(member.movement_rate for member in self.members)
+        return min(getattr(entity, 'movement_rate', 0) for entity in self.entities)
