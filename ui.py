@@ -1,15 +1,26 @@
 # -*- coding: utf-8 -*-
 
 from game.creatures import Creature, Humanoid
-from game.creatures.adventurers import Party
+from game.creatures.adventurers import Adventurer
 from game.objects import Heavy, Ranged, Stowable, TwoHanded
 from game.objects.armour import Armour, Shield
 from game.objects.containers import Belt, ResourceContainer, StorageContainer
 from game.objects.supplies import Supply
 from game.objects.tools import ImprovisedWeapon
 from game.objects.weapons import Weapon
-from game.places.underground import Dungeon
 from math import ceil, floor
+
+
+def abilities(char: Adventurer) -> str:
+    return ' '.join([
+        f"LV:{char.level:d}",
+        f"ST:{char.abilities['ST']:d}",
+        f"IN:{char.abilities['IN']:d}",
+        f"WI:{char.abilities['WI']:d}",
+        f"DE:{char.abilities['DE']:d}",
+        f"CO:{char.abilities['CO']:d}",
+        f"CH:{char.abilities['CH']:d}",
+    ])
 
 
 def health_bar(char: Creature, width: int) -> str:
@@ -30,48 +41,6 @@ def health_bar(char: Creature, width: int) -> str:
     survive = '▒' * floor(width * (char.hit_dice - wounds) / char.hit_dice)
 
     return survive + ('·' * ceil(width * wounds / char.hit_dice))
-
-
-def party_location(party: Party):
-
-    if party.flee:
-        bearing = f"FLEE"
-    elif party.lost:
-        bearing = f"LOST"
-    elif isinstance(party.location, Dungeon.Area):
-        bearing = f"{party.location.z:02d}{party.location.y:02d}"
-    else:
-        bearing = '0000'
-
-    if isinstance(party.location, Dungeon.Door):
-        if party.location.locked:
-            area = 'Door: locked'
-        elif party.location.stuck:
-            area = 'Door: stuck'
-        else:
-            area = 'Door: open'
-    elif isinstance(party.location, Dungeon.Passage):
-        if party.location.ahead and party.location.branch:
-            area = 'Intersection'
-        elif party.location.ahead:
-            area = 'Passage ahead'
-        elif party.location.branch:
-            area = 'Passage turns'
-        else:
-            area = 'Dead end'
-    elif isinstance(party.location, Dungeon.Stairway):
-        if party.location.ascend and party.location.descend:
-            area = 'Stairs up/down'
-        elif party.location.ascend:
-            area = 'Stairs up'
-        elif party.location.descend:
-            area = 'Stairs down'
-        else:
-            area = 'Stairs blocked'
-    else:
-        area = type(party.location).__name__
-
-    return f"{bearing} {area}"
 
 
 def print_inventory(char: Humanoid, full: bool = False):
@@ -156,7 +125,7 @@ def print_inventory_item(item, prefix: str = ' '):
             print(f" {mass} · · ·")
 
 
-def statblock(char: Creature):
+def statblock(char: Creature) -> str:
 
     stats = [
         f"HD:{char.hit_dice:d}{char.hit_die_modifier:+d}",

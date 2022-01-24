@@ -3,27 +3,7 @@
 from . import Creature, Unit
 
 
-class DireWolf(Creature):
-    '''Large, savage, semi-intelligent wolves. Dwell in caves, mountains, and forests.'''
-
-    class Bite(Creature.Attack):
-        DAMAGE = 5
-
-    AC = 6
-    HD = 4
-    HD_MOD = +1
-    AT = [(Bite,)]
-    TH = 15
-    MV = 15
-    SV = 14
-    ML = 8
-    XP = 125
-
-    # TODO Training: At the referee’s discretion, captured cubs may be trained like dogs. Dire wolves are ferocious and extremely difficult to train.
-    # TODO Mounts: Sometimes trained as mounts by goblins.
-
-
-class SpittingCobra(Creature):
+class Cobra(Creature):
     '''3’ long snakes with grey/white scales. Prefer to attack from a distance with spit.'''
 
     class Bite(Creature.Attack):
@@ -42,6 +22,26 @@ class SpittingCobra(Creature):
     SV = 14
     ML = 7
     XP = 13
+
+
+class DireWolf(Creature):
+    '''Large, savage, semi-intelligent wolves. Dwell in caves, mountains, and forests.'''
+
+    class Bite(Creature.Attack):
+        DAMAGE = 5
+
+    AC = 6
+    HD = 4
+    HD_MOD = +1
+    AT = [(Bite,)]
+    TH = 15
+    MV = 15
+    SV = 14
+    ML = 8
+    XP = 125
+
+    # TODO Training: At the referee’s discretion, captured cubs may be trained like dogs. Dire wolves are ferocious and extremely difficult to train.
+    # TODO Mounts: Sometimes trained as mounts by goblins.
 
 
 class Wolf(Creature):
@@ -64,9 +64,8 @@ class Wolf(Creature):
     @property
     def morale_rating(self) -> int:
         '''Strength in numbers: Packs of 4 or more wolves have morale 8.'''
-        if isinstance(self.location, Unit):
-            if len({member for member in self.location.members if isinstance(member, Wolf)}) >= 4:
-                return self.ML_PACK
+        if isinstance(self.location, Unit) and len(self.location.members) >= 4:
+            return self.ML_PACK
         # TODO If the pack is reduced to less than 50% of its original size, this morale bonus is lost.
         return super().morale_rating
 

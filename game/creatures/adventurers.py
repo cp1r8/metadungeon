@@ -51,6 +51,17 @@ class Adventurer(Human):
         self.__cha = charisma
 
     @property
+    def abilities(self) -> dict[str, int]:
+        return {
+            'ST': self.__str,
+            'IN': self.__int,
+            'WI': self.__wis,
+            'DE': self.__dex,
+            'CO': self.__con,
+            'CH': self.__cha,
+        }
+
+    @property
     def attack_target_value(self) -> int:
         return self.TH_BY_STR[self.__str - 3]
 

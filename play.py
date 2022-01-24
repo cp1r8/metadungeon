@@ -26,9 +26,9 @@ if __name__ == '__main__':
         dungeon = Dungeon(world)
         world.add(dungeon)
 
-        if '--no-equip' in sys.argv:
+        if '--shop' in sys.argv:
             auto_equip = False
-            # TODO start in town
+            # TODO start in town (purchase equipment manually)
         else:
             auto_equip = True
 
@@ -58,40 +58,49 @@ if __name__ == '__main__':
     for arg in sys.argv:
         if arg in actions:
             actions[arg]()
-            world.age(minutes=10)
+            world.age(minutes=36 / party.movement_rate)
             actions = party.location.actions(party)
             break
 
     with game_file.open('wb') as output:
         pickle.dump((world, party), output)
 
-    print(f"[{world.now:%Y-%m-%d %H:%M}] {ui.party_location(party)}")
+    print(f"{str(world):<18}", world.now)
     print('=' * 39)
     print()
 
     for entity in sorted(party.location.entities, key=lambda entity: entity.id):
+
         print(str(entity))
         print()
+
         if isinstance(entity, Unit):
             for member in sorted(entity.members, key=lambda member: member.id):
-                print(f"{str(member):<18} {ui.health_bar(member, 20)}")
+
+                print(f"{str(member):<18}", ui.health_bar(member, 20))
+
                 if '--stats' in sys.argv:
                     print(ui.statblock(member))
+
                 if isinstance(member, Adventurer):
+                    if '--abilities' in sys.argv:
+                        print(ui.abilities(member))
                     if '--level' in sys.argv:
-                        # print(f"LV:{member.gold_for_next_level:,.0f}¤")
-                        print(f"LV:{member.copper_for_next_level:,.0f}¢")
+                        print(f"XP:{member.gold_for_next_level:,.0f}")
+
                 if isinstance(member, Humanoid):
                     if '--inventory' in sys.argv:
                         ui.print_inventory(member, True)
                         print('-' * 39)
                     elif '--arms' in sys.argv:
                         ui.print_inventory(member)
+
                 print()
+
         print('=' * 39)
         print()
 
-    action_names = list(actions.keys())
-    action_names.sort()
-    print('[ ' + ' ] [ '.join(action_names) + ' ]')
+    print(str(party.location))
+    print()
+    print('[ ' + ' ] [ '.join(sorted(actions.keys())) + ' ]')
     print()

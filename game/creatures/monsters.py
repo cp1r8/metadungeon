@@ -16,7 +16,8 @@ class GreenSlime(Creature):
     HD = 2
     AT = [(Touch,)]
     TH = 18
-    MV = 1/3
+    # MV = 1/3
+    MV = 1
     SV = 14
     ML = 12
     XP = 25

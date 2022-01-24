@@ -76,6 +76,9 @@ class Dungeon(Place):
                 party.lost = False
             party.move(area)
 
+    class DeadEnd(Area):
+        pass
+
     class Door(Area):
 
         def __init__(self, dungeon: 'Dungeon', y: int, z: int, locked: bool = False, stuck: bool = False) -> None:
@@ -214,7 +217,7 @@ class Dungeon(Place):
         # (demihumans.Orc, 2*d4),
         (mutants.Shrew, 1*d10),
         # (Skeleton, 3*d4),
-        (animals.SpittingCobra, 1*d6),
+        (animals.Cobra, 1*d6),
         (mutants.CrabSpider, 1*d4),
         # (demihumans.Sprite, 3*d6),
         (monsters.Stirge, 1*d10),
@@ -242,7 +245,7 @@ class Dungeon(Place):
         elif area.z < self.MAXZ:
             return self.Stairway(self, y, area.z, descend=1)
         else:
-            return self.Passage(self, y, area.z, ahead=False)  #  dead end
+            return self.DeadEnd(self, y, area.z)
 
     def __discoverArea(self, y: int, z: int, roll: int) -> Area:
         if roll <= 3:
@@ -270,7 +273,7 @@ class Dungeon(Place):
         # elif roll == 5:
         #     return self.Door(self, y, z, locked=True)
         else:
-            return self.Passage(self, y, z, ahead=False)  #  dead end
+            return self.DeadEnd(self, y, z)
 
     def __discoverRoom(self, y: int, z: int, roll: int) -> Room:
         if roll <= 2:

@@ -33,9 +33,9 @@ class Acolyte(Human):
     TORSO = [armour.Plate]
 
     @classmethod
-    def encounter(cls, number_appearing: int, location: Place) -> Unit:
+    def encounter(cls, location: Place, number_appearing: int) -> Unit:
         '''Leader: Groups of 4+ are led by a higher level cleric (1d10: 1-4: 2nd level, 5-7: 3rd level, 8-9: 4th level, 10: 5th level).'''
-        unit = super().encounter(number_appearing, location)
+        unit = super().encounter(location, number_appearing)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
             unit.add(adventurers.Cleric.generate(unit, level))
@@ -59,9 +59,9 @@ class Bandit(Human):
     # TODO Trickery: Use disguise or trickery to surprise victims.
 
     @classmethod
-    def encounter(cls, number_appearing: int, location: Place) -> Unit:
+    def encounter(cls, location: Place, number_appearing: int) -> Unit:
         '''Leader: May have a leader of 2nd level or higher (any human class).'''
-        unit = super().encounter(number_appearing, location)
+        unit = super().encounter(location, number_appearing)
         if number_appearing >= 4:
             level = random.choice([2, 2, 2, 2, 3, 3, 3, 4, 4, 5])
             unit.add(adventurers.Adventurer.generate(unit, level))
@@ -72,6 +72,7 @@ class Trader(Human):
     '''1st level fighters who live by trading in borderland areas. Usually carry: hand-axe, sword, shield, furs (equivalent to leather armour).'''
     # AC = 6
     HD = 1
+    HD_MOD = +1
     TH = 19
     # MV = 12 # override?
     SV = 14
