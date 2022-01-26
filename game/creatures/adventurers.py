@@ -138,7 +138,7 @@ class Adventurer(Human):
     def generate(cls, location: Place, level: int, auto_equip: bool = True) -> 'Adventurer':
 
         if cls is Adventurer and level > 0:
-            cls = choice([Fighter, Fighter, Muser, Thief])
+            cls = choice(Party.CLASS_EXPERT_LEVELS)[0]
 
         adventurer = cls(
             location,
@@ -533,18 +533,22 @@ class Thief(Adventurer):
         return [tools.Lockpicks()]
 
 
+# FUTURE: Client class ("cleric")
+Client = Muser
+
+
 class Party(Unit):
 
-    CLASS_EXPERT_LEVELS = {
-        # Barbarian: 1*d6+6, # Dwarf
-        # Bard: 1*d6+2, # Elf
-        # Cleric: 1*d6+3,
-        Fighter: 1*d6+3,
-        Fighter: 1*d6+5,
-        # Ranger: 1*d6+2, # Halfling
-        Muser: 1*d6+3,
-        Thief: 1*d6+4,
-    }
+    CLASS_EXPERT_LEVELS = (
+        (Client, 1*d6+3),
+        (Fighter, 1*d6+6),  # TODO Barbarian/Monk/??? ("Dwarf")
+        (Fighter, 1*d6+2),  # TODO Bard ("Elf"=Fighter/Muser)
+        (Fighter, 1*d6+3),
+        (Fighter, 1*d6+5),
+        (Thief, 1*d6+2),  # TODO Ranger ("Halfling")
+        (Muser, 1*d6+3),
+        (Thief, 1*d6+4),
+    )
 
     def __init__(self, location: Place) -> None:
         super().__init__(location)
@@ -567,17 +571,45 @@ class Party(Unit):
 
     @classmethod
     def expert(cls, location: Place, auto_equip: bool = True) -> 'Party':
-        # TODO level by class
-        # TODO Mounts: 75% chance of being mounted, in the wilderness.
-        # TODO Special items: Per individual, there is a chance of the adventurer having a special item from each suitable special item sub-table.
-        # The chance per sub-table is 5% per level of the NPC. Rolled items that cannot be used by the adventurer should be ignored (no re-roll).
         party = cls(location)
         for _ in range(0, d6() + 3):
-            party.add(Adventurer.generate(party, d6() + 3, auto_equip))
+            klass, level = choice(cls.CLASS_EXPERT_LEVELS)
+            party.add(klass.generate(party, sum(level), auto_equip))
+        # TODO Mounts: 75% chance of being mounted, in the wilderness.
+        # TODO Special items: Per individual, there is a chance of the adventurer having a special item from each suitable special item sub-table.
+        # The chance per sub-table is 5% per level. Rolled items that cannot be used by the adventurer should be ignored (no re-roll).
         return party
 
-    # TODO high-level adventurers
+    @classmethod
+    def highLevelClient(cls, location: Place, auto_equip: bool = True) -> 'Party':
+        '''A high-level client and party.'''
+        party = cls(location)
+        party.add(Client.generate(party, d6() + 6, auto_equip))
+        for _ in range(0, d4() + 1):
+            party.add(Client.generate(party, d4() + 1, auto_equip))
+        for _ in range(0, d3()):
+            party.add(Fighter.generate(party, d6(), auto_equip))
+        # TODO Mounts and special items as per Expert Adventurers.
+        return party
 
+    @classmethod
+    def highLevelFighter(cls, location: Place, auto_equip: bool = True) -> 'Party':
+        '''A high-level fighter and a group of retainers, often on their way to or from war.'''
+        party = cls(location)
+        party.add(Fighter.generate(party, d4() + 6, auto_equip))
+        for _ in range(0, sum(2*d4)):
+            party.add(Fighter.generate(party, d4() + 2, auto_equip))
+        # TODO Mounts and special items as per Expert Adventurers.
+        return party
 
-# FUTURE: Cleric class?
-Cleric = Muser
+    @classmethod
+    def highLevelMuser(cls, location: Place, auto_equip: bool = True) -> 'Party':
+        '''A high-level muser, accompanied by apprentices and a group of hired guards, often on a quest for arcane lore.'''
+        party = cls(location)
+        party.add(Muser.generate(party, d4() + 6, auto_equip))
+        for _ in range(0, d4()):
+            party.add(Muser.generate(party, d3(), auto_equip))
+        for _ in range(0, d4()):
+            party.add(Fighter.generate(party, d4() + 1, auto_equip))
+        # TODO Mounts and special items as per Expert Adventurers.
+        return party

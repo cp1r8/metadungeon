@@ -40,6 +40,12 @@ if __name__ == '__main__':
             party = Party.expert(location, auto_equip)
         elif '--funnel' in sys.argv:
             party = Party.assemble(0, sum(4*d4) + 4, location, auto_equip)
+        elif '--hlc' in sys.argv:
+            party = Party.highLevelClient(location, auto_equip)
+        elif '--hlf' in sys.argv:
+            party = Party.highLevelFighter(location, auto_equip)
+        elif '--hlm' in sys.argv:
+            party = Party.highLevelMuser(location, auto_equip)
         else:
             party = Party.assemble(1, sum(2*d4) + 4, location, auto_equip)
 
