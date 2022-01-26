@@ -99,7 +99,7 @@ class Adventurer(Human):
             f"{self.__dex-3:X}",
             f"{self.__con-3:X}",
             f"{self.__cha-3:X}",
-            f".{self.id:04X}",
+            f":{self.id:06X}",
         ])
 
     @property
@@ -125,6 +125,11 @@ class Adventurer(Human):
     @property
     def save_target_value(self) -> int:
         return self.SV_BY_WIS[self.__wis - 3]
+
+    def __str__(self) -> str:
+        if hasattr(self, 'name'):
+            return getattr(self, 'name')
+        return self.handle
 
     # TODO level up
     # TODO Adventurer must select a character class after gaining XP on an adventure.

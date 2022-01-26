@@ -28,11 +28,7 @@ class Entity:
         self.__index[self.id] = self
 
     def __str__(self) -> str:
-        if hasattr(self, 'name'):
-            return getattr(self, 'name')
-        if hasattr(self, 'handle'):
-            return getattr(self, 'handle')
-        return f"{type(self).__name__}.{self.id:04X}"
+        return f"{type(self).__name__}:{self.id:06X}"
 
     def actions(self, actor: 'Entity') -> dict[str, Callable]:
         return {}
