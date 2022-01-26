@@ -4,7 +4,7 @@ from game.creatures import Creature, Humanoid
 from game.creatures.adventurers import Adventurer
 from game.objects import Heavy, Ranged, Stowable, TwoHanded
 from game.objects.armour import Armour, Shield
-from game.objects.containers import Belt, ResourceContainer, StorageContainer
+from game.objects.containers import Belt, Container, ResourceContainer, StorageContainer
 from game.objects.supplies import Supply
 from game.objects.tools import ImprovisedWeapon
 from game.objects.weapons import Weapon
@@ -62,20 +62,24 @@ def print_inventory(char: Humanoid, full: bool = False):
         else:
             inventory['<'] = char.off_hand
     if full and char.waist:
-        inventory['~'] = char.waist
+        inventory['-'] = char.waist
     if full and char.shoulders:
         inventory[']'] = char.shoulders
 
     for prefix, item in inventory.items():
         if isinstance(item, Belt):
             container = item
-            for item in container.items:
-                print_inventory_item(item)
+            for item in container.contents:
+                print_inventory_item(item, prefix)
+                if full and isinstance(item, Container):
+                    container = item
+                    for item in container.contents:
+                        print_inventory_item(item)
         else:
             print_inventory_item(item, prefix)
-            if full and isinstance(item, StorageContainer):
+            if full and isinstance(item, Container):
                 container = item
-                for item in container.items:
+                for item in container.contents:
                     print_inventory_item(item)
 
 
@@ -104,11 +108,11 @@ def print_inventory_item(item, prefix: str = ' '):
                 uses = f"{item.quantity:d}"
             elif item.capacity:
                 uses = ('○' * item.quantity) + ('●' * item.capacity_free)
-    elif isinstance(item, StorageContainer):
+    elif isinstance(item, Container):
         if item.is_empty:
             name = f"{name} (empty)"
         elif prefix == ' ':
-            name = f"{name} ({len(item.items):d} items)"
+            name = f"{name} ({item.items:d} items)"
         else:
             name = f"{name}:"
     elif isinstance(item, Supply):

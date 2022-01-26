@@ -3,7 +3,8 @@
 from . import Unit
 from .. import Place
 from ..dice import d3, d4, d6
-from ..objects import armour, containers, supplies, tools, valuables, weapons
+from ..objects import armour, containers, documents, supplies, tools, valuables, weapons
+from ..scripts import mk1
 from .humans import Human
 from random import choice
 
@@ -187,28 +188,28 @@ class Adventurer(Human):
 
     def random_fill_belt(self, belt: containers.Belt) -> None:
         skin = containers.Waterskin()
-        skin.store(supplies.Water(containers.Waterskin.CAPACITY))
-        belt.store(skin)
+        skin.add(supplies.Water(containers.Waterskin.CAPACITY))
+        belt.add(skin)
 
     def random_fill_pack(self, pack: containers.Backpack) -> None:
         for item in self.random_essentials(d6()):
-            pack.store(item)
+            pack.add(item)
         for item in self.random_light_source(d6()):
-            pack.store(item)
+            pack.add(item)
         for item in self.random_adventuring_gear(d6()):
-            pack.store(item)
+            pack.add(item)
         for item in self.random_extra_gear(d6()):
-            pack.store(item)
+            pack.add(item)
 
     def random_light_source(self, roll: int):
         if roll <= 3:
             return [supplies.Torches(supplies.Torches.ITEMS_PER_SLOT)]
         if roll <= 4:
             lantern = tools.Lantern()
-            lantern.store(supplies.Oil(lantern.capacity))
+            lantern.add(supplies.Oil(lantern.capacity))
             return [lantern]
         lantern = tools.Lantern()
-        lantern.store(supplies.Oil(lantern.capacity))
+        lantern.add(supplies.Oil(lantern.capacity))
         return [lantern, containers.Flask.of(supplies.Oil())]
 
     def random_primary_weapons(self, roll: int):
@@ -236,7 +237,7 @@ class Adventurer(Human):
     def __belt_and_money(self) -> None:
         belt = containers.Belt()
         for item in self.random_starting_funds(sum(3*d6)):
-            belt.store(item)
+            belt.add(item)
         self.don(belt)
 
 
@@ -317,7 +318,7 @@ class Fighter(Adventurer):
     def random_fill_belt(self, belt: containers.Belt) -> None:
         super().random_fill_belt(belt)
         for item in self.random_secondary_weapons(d6()):
-            belt.store(item)
+            belt.add(item)
 
     def random_primary_weapons(self, roll: int) -> list:
         if roll <= 3:
@@ -326,11 +327,11 @@ class Fighter(Adventurer):
                 return [weapons.Javelin()]
             if roll <= 2:
                 bow = weapons.Longbow()
-                bow.store(supplies.Arrows(bow.capacity))
+                bow.add(supplies.Arrows(bow.capacity))
                 return [bow]
             if roll <= 3:
                 bow = weapons.Crossbow()
-                bow.store(supplies.Quarrels(bow.capacity))
+                bow.add(supplies.Quarrels(bow.capacity))
                 return [bow]
             if roll <= 4:
                 return [weapons.Battleaxe()]
@@ -360,15 +361,30 @@ class Fighter(Adventurer):
             return [weapons.Dagger()]
         if roll <= 5:
             sling = weapons.Sling()
-            sling.store(supplies.Stones(sling.capacity))
+            sling.add(supplies.Stones(sling.capacity))
             return [sling]
         bow = weapons.Shortbow()
-        bow.store(supplies.Arrows(bow.capacity))
+        bow.add(supplies.Arrows(bow.capacity))
         return [bow]
 
 
 class Muser(Adventurer):
     '''Adventurers whose study of arcane secrets has taught them how to invoke algorithms.'''
+
+    MK1_SCRIPTS = [
+        mk1.Decompile,
+        mk1.DetectScript,
+        mk1.EnergyDart,
+        mk1.FloatingDisc,
+        mk1.HoldPortal,
+        mk1.HypnotisePerson,
+        mk1.Light,
+        mk1.Shield,
+        mk1.Sleep,
+        mk1.TranslateWriting,
+        mk1.Ventriloquism,
+        mk1.Ward,
+    ]
 
     XP_NEXT_LV = (25, 25, 50, 100, 200, 400, 700, 1500, 1500)
 
@@ -432,8 +448,10 @@ class Muser(Adventurer):
     def random_fill_belt(self, belt: containers.Belt) -> None:
         super().random_fill_belt(belt)
         for item in self.random_compound(d6()):
-            belt.store(item)
-        # TODO codex and V1 algorithm
+            belt.add(item)
+        codex = documents.Codex()
+        codex.add(choice(self.MK1_SCRIPTS)())
+        belt.add(codex)
 
     def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:
@@ -507,12 +525,12 @@ class Thief(Adventurer):
 
     def random_fill_belt(self, belt: containers.Belt) -> None:
         super().random_fill_belt(belt)
-        belt.store(weapons.Dagger())
+        belt.add(weapons.Dagger())
 
     def random_fill_pack(self, pack: containers.Backpack) -> None:
         super().random_fill_pack(pack)
         for item in self.random_specialist_gear(d6()):
-            pack.store(item)
+            pack.add(item)
 
     def random_primary_weapons(self, roll: int) -> list:
         if roll <= 1:
@@ -522,7 +540,7 @@ class Thief(Adventurer):
         if roll <= 5:
             return [weapons.Shortsword()]
         bow = weapons.Shortbow()
-        bow.store(supplies.Arrows(bow.capacity))
+        bow.add(supplies.Arrows(bow.capacity))
         return [bow]
 
     def random_specialist_gear(self, roll: int) -> list:

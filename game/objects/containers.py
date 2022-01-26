@@ -9,10 +9,10 @@ class ContainerError(ValueError):
     pass
 
 
-T = TypeVar('T', bound=Quantifiable)
+R = TypeVar('R', bound=Quantifiable)
 
 
-class ResourceContainer(Generic[T]):
+class ResourceContainer(Generic[R]):
 
     CAPACITY = 1
 
@@ -41,13 +41,7 @@ class ResourceContainer(Generic[T]):
             return self.__contents.quantity
         return 1 if self.__contents else 0
 
-    def remove(self, quantity: int) -> T:
-        if isinstance(self.__contents, Quantifiable):
-            self.__contents.deplete(quantity)
-            return self.contents(quantity)
-        raise ContainerError()
-
-    def store(self, item: T) -> None:
+    def add(self, item: R) -> None:
         if isinstance(self.__contents, Quantifiable):
             if self.capacity_free < item.quantity:
                 raise ContainerError()
@@ -56,6 +50,12 @@ class ResourceContainer(Generic[T]):
             if self.__contents:
                 raise ContainerError()
             self.__contents = item
+
+    def remove(self, quantity: int) -> R:
+        if isinstance(self.__contents, Quantifiable):
+            self.__contents.deplete(quantity)
+            return self.contents(quantity)
+        raise ContainerError()
 
 
 F = TypeVar('F', bound=Fluid)
@@ -78,13 +78,15 @@ class SubstanceContainer(Entity, ResourceContainer[S], Generic[S]):
         ResourceContainer.__init__(self)
 
 
-class StorageContainer(Entity):
+T = TypeVar('T')
 
-    CAPACITY = 1
+
+class Container(Generic[T]):
+
+    CAPACITY = 0
 
     def __init__(self) -> None:
-        super().__init__()
-        self.__items = []
+        self.__contents = []
 
     @property
     def capacity(self) -> int:
@@ -96,25 +98,46 @@ class StorageContainer(Entity):
 
     @property
     def capacity_used(self) -> int:
-        return sum(item.slots_required for item in self.__items)
+        return self.items
+
+    @property
+    def contents(self) -> list[T]:
+        return self.__contents.copy()
 
     @property
     def is_empty(self) -> bool:
-        return not self.__items
+        return not self.__contents
 
     @property
-    def items(self) -> list[Stowable]:
-        return self.__items.copy()
+    def items(self) -> int:
+        return len(self.__contents)
 
-    def remove(self, item: Stowable) -> None:
-        if item not in self.__items:
-            raise ContainerError()
-        self.__items.remove(item)
-
-    def store(self, item: Stowable) -> None:
+    def add(self, item: T) -> None:
         if not self.capacity_free:
             raise ContainerError()
-        self.__items.append(item)
+        self.__contents.append(item)
+
+    def remove(self, item: T) -> None:
+        if item not in self.__contents:
+            raise ContainerError()
+        self.__contents.remove(item)
+
+
+class StorageContainer(Entity, Container[Stowable]):
+
+    def __init__(self) -> None:
+        Entity.__init__(self)
+        Container.__init__(self)
+
+    @property
+    def capacity_used(self) -> int:
+        return sum(item.slots_required for item in self.contents)
+
+    def add(self, item: Stowable) -> None:
+        if item.slots_required > self.capacity_free:
+            raise ContainerError()
+        # TODO heavy items
+        super().add(item)
 
 
 class StowableContainer(StorageContainer, Stowable):
@@ -154,7 +177,7 @@ class Flask(FluidContainer, Stowable, Throwable):
     @ classmethod
     def of(cls, contents: Fluid):
         self = cls()
-        self.store(contents)
+        self.add(contents)
         return self
 
     # TODO Throwing: An oil flask may be lit on fire and thrown
@@ -167,7 +190,7 @@ class Vial(SubstanceContainer, Stowable):
     @ classmethod
     def of(cls, contents: Substance):
         self = cls()
-        self.store(contents)
+        self.add(contents)
         return self
 
 

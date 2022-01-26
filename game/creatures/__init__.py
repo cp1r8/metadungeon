@@ -331,7 +331,7 @@ class Humanoid(Creature):
         if self.WAIST:
             belt = containers.Belt()
             for item_type in self.WAIST:
-                belt.store(item_type())
+                belt.add(item_type())
             self.don(belt)
 
 
