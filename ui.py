@@ -23,24 +23,24 @@ def abilities(char: Adventurer) -> str:
     ])
 
 
-def health_bar(char: Creature, width: int) -> str:
+def health_bar(char: Creature, width: int, full: str = '#', hit: str = ':', wound: str = '·') -> str:
 
     if char.hit_dice == 0:
-        return ('·' * width) if char.hits_taken else ('█' * width)
+        return (wound * width) if char.hits_taken else (full * width)
 
     if char.hits_taken < char.hit_dice:
         hits = char.hits_taken + (0.5 if char.partial_hit else 0)
-        health = '█' * floor(width * (char.hit_dice - hits) / char.hit_dice)
-        return health + ('▒' * ceil(width * hits / char.hit_dice))
+        health = full * floor(width * (char.hit_dice - hits) / char.hit_dice)
+        return health + (hit * ceil(width * hits / char.hit_dice))
 
     wounds = char.hits_taken - char.hit_dice
 
     if wounds >= char.hit_dice:
-        return '·' * width
+        return wound * width
 
-    survive = '▒' * floor(width * (char.hit_dice - wounds) / char.hit_dice)
+    survive = hit * floor(width * (char.hit_dice - wounds) / char.hit_dice)
 
-    return survive + ('·' * ceil(width * wounds / char.hit_dice))
+    return survive + (wound * ceil(width * wounds / char.hit_dice))
 
 
 def print_inventory(char: Humanoid, full: bool = False):

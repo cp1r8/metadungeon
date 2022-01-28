@@ -13,6 +13,8 @@ class Adventurer(Human):
 
     # TODO Disadvantage using armour/shields and/or using weapons other than club, dagger, or staff
 
+    PREFIX = 'NH'
+
     AC_BY_DEX = (11, 11, 11, 10, 10, 10, 9, 9,
                  9, 9, 8, 8, 8, 7, 7, 7)
     ML_BY_CHA = (6, 6, 6, 6, 6, 6, 7, 7,
@@ -80,7 +82,7 @@ class Adventurer(Human):
 
     @property
     def experience_for_next_level(self) -> int:
-        return 0
+        return 1
 
     @property
     def experience_rate(self) -> int:
@@ -91,16 +93,16 @@ class Adventurer(Human):
         return self.copper_for_next_level / valuables.Gold.VALUE_IN_COPPER
 
     @property
-    def handle(self) -> str:
+    def profile(self) -> str:
         return ''.join([
-            f"{self.prefix}-",
+            f"{self.prefix}",
+            f"{self.level:d}-" if self.level > 0 else '-',
             f"{self.__str-3:X}",
             f"{self.__int-3:X}",
             f"{self.__wis-3:X}",
             f"{self.__dex-3:X}",
             f"{self.__con-3:X}",
             f"{self.__cha-3:X}",
-            f":{self.id:06X}",
         ])
 
     @property
@@ -121,16 +123,20 @@ class Adventurer(Human):
 
     @property
     def prefix(self) -> str:
-        return 'NH'
+        return self.PREFIX
 
     @property
     def save_target_value(self) -> int:
         return self.SV_BY_WIS[self.__wis - 3]
 
+    @property
+    def silver_for_next_level(self) -> float:
+        return self.copper_for_next_level / valuables.Silver.VALUE_IN_COPPER
+
     def __str__(self) -> str:
         if hasattr(self, 'name'):
             return getattr(self, 'name')
-        return self.handle
+        return super().__str__()
 
     # TODO level up
     # TODO Adventurer must select a character class after gaining XP on an adventure.
@@ -244,6 +250,8 @@ class Adventurer(Human):
 class Fighter(Adventurer):
     '''Adventurers dedicated to mastering the arts of combat and war.'''
 
+    PREFIX = 'F'
+
     # TODO Fighters can use all types of weapons and armour.
 
     XP_NEXT_LV = (20, 20, 40, 80, 160, 320, 640, 1200, 1200)
@@ -289,10 +297,6 @@ class Fighter(Adventurer):
         if self.level < 13:
             return super().morale_rating + 3
         return super().morale_rating + 4
-
-    @property
-    def prefix(self) -> str:
-        return f"F{self.level:d}"
 
     @property
     def save_target_value(self) -> int:
@@ -371,6 +375,8 @@ class Fighter(Adventurer):
 class Muser(Adventurer):
     '''Adventurers whose study of arcane secrets has taught them how to invoke algorithms.'''
 
+    PREFIX = 'M'
+
     MK1_SCRIPTS = [
         mk1.Decompile,
         mk1.DetectScript,
@@ -421,10 +427,6 @@ class Muser(Adventurer):
         return super().morale_rating + 2
 
     @property
-    def prefix(self) -> str:
-        return f"M{self.level:d}"
-
-    @property
     def save_target_value(self) -> int:
         if self.level < 6:
             return super().save_target_value
@@ -463,6 +465,8 @@ class Muser(Adventurer):
 
 class Thief(Adventurer):
     '''Adventurers who live by their skills of deception and stealth.'''
+
+    PREFIX = 'T'
 
     # TODO Back-stab: When attacking an unaware opponent from behind, +4 bonus to hit and double damage.
     # TODO Disadvantage if using shield or heavy armour; can use any weapon
@@ -503,10 +507,6 @@ class Thief(Adventurer):
         if self.level < 13:
             return super().morale_rating + 2
         return super().morale_rating + 3
-
-    @property
-    def prefix(self) -> str:
-        return f"T{self.level:d}"
 
     @property
     def save_target_value(self) -> int:

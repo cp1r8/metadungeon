@@ -83,7 +83,14 @@ if __name__ == '__main__':
         if isinstance(entity, Unit):
             for member in sorted(entity.members, key=lambda member: member.id):
 
-                print(f"{str(member):<18}", ui.health_bar(member, 20))
+                print(str(member))
+
+                hit_points = f"{2 * member.hits_remaining - member.partial_hit:d}/{2 * member.hit_dice:d}"
+
+                print(
+                    f"[{ui.health_bar(member, 20)}]",
+                    f"{hit_points:>5} hp"
+                )
 
                 if '--stats' in sys.argv:
                     print(ui.statblock(member))
@@ -92,7 +99,10 @@ if __name__ == '__main__':
                     if '--abilities' in sys.argv:
                         print(ui.abilities(member))
                     if '--level' in sys.argv:
-                        print(f"XP:{member.gold_for_next_level:,.0f}")
+                        print(
+                            f"{member.profile}",
+                            f"1UP:{member.silver_for_next_level:,.0f}$"
+                        )
 
                 if isinstance(member, Humanoid):
                     if '--inventory' in sys.argv:
