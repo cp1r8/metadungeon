@@ -452,6 +452,7 @@ class Muser(Adventurer):
         for item in self.random_compound(d6()):
             belt.add(item)
         codex = documents.Codex()
+        # TODO LV > 1, prepared scripts
         codex.add(choice(self.MK1_SCRIPTS)())
         belt.add(codex)
 
