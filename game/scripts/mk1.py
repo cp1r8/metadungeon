@@ -3,6 +3,10 @@
 from . import Script
 
 
+class CharmPerson(Script):
+    pass
+
+
 class Decompile(Script):
     pass
 
@@ -19,20 +23,15 @@ class FloatingDisc(Script):
     pass
 
 
+class ForceShield(Script):
+    pass
+
+
 class HoldPortal(Script):
     pass
 
 
-class HypnotisePerson(Script):
-    pass
-
-
-class Light(Script):
-    # TODO: Darkness (inverse)
-    pass
-
-
-class Shield(Script):
+class LightDarkness(Script):
     pass
 
 

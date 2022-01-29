@@ -378,14 +378,14 @@ class Muser(Adventurer):
     PREFIX = 'M'
 
     MK1_SCRIPTS = [
+        mk1.CharmPerson,
         mk1.Decompile,
         mk1.DetectScript,
         mk1.EnergyDart,
         mk1.FloatingDisc,
+        mk1.ForceShield,
         mk1.HoldPortal,
-        mk1.HypnotisePerson,
-        mk1.Light,
-        mk1.Shield,
+        mk1.LightDarkness,
         mk1.Sleep,
         mk1.TranslateWriting,
         mk1.Ventriloquism,

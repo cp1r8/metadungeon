@@ -64,7 +64,7 @@ if __name__ == '__main__':
     for arg in sys.argv:
         if arg in actions:
             actions[arg]()
-            world.age(minutes=36 / party.movement_rate)
+            world.age(minutes=10)
             actions = party.location.actions(party)
             break
 
