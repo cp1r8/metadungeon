@@ -85,7 +85,10 @@ if __name__ == '__main__':
 
                 print(str(member))
 
-                hit_points = f"{2 * member.hits_remaining - member.partial_hit:d}/{2 * member.hit_dice:d}"
+                if member.hits_taken > member.hit_dice:
+                    hit_points = f"{member.hit_dice - member.hits_taken:d}/{member.hit_dice:d}"
+                else:
+                    hit_points = f"{member.hits_remaining - member.partial_hit:d}/{member.hit_dice:d}"
 
                 print(
                     f"[{ui.health_bar(member, 20)}]",
