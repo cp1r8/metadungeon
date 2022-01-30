@@ -72,64 +72,69 @@ if __name__ == '__main__':
         pickle.dump((world, party), output)
 
     print(f"{str(world):<18}", world.now)
+    print()
+    print(str(party.location))
+    print()
+    print('[ ' + ' ] [ '.join(sorted(actions.keys())) + ' ]')
     print('=' * 39)
     print()
 
     for entity in sorted(party.location.entities, key=lambda entity: entity.id):
+        if isinstance(entity, Unit):
+            continue
+        print(str(entity))
+        print()
+
+    for entity in sorted(party.location.entities, key=lambda entity: entity.id):
+
+        if not isinstance(entity, Unit):
+            continue
 
         print(str(entity))
 
-        if isinstance(entity, Unit):
+        # TODO unit "health bar"
+        # TODO unit status (e.g., lost/flee)
 
-            # TODO unit "health bar"
-            # TODO unit status (e.g., lost/flee)
+        if '--stats' in sys.argv:
+            print(ui.unitstats(entity))
 
-            if '--stats' in sys.argv:
-                print(ui.unitstats(entity))
-
-            print('-' * 39)
-            print()
-
-            for member in sorted(entity.members, key=lambda member: member.id):
-
-                print(str(member))
-
-                if member.hits_taken > member.hit_dice:
-                    hit_points = f"{member.hit_dice - member.hits_taken:d}/{member.hit_dice:d}"
-                else:
-                    hit_points = f"{member.hits_remaining - member.partial_hit:d}/{member.hit_dice:d}"
-
-                print(
-                    f"[{ui.health_bar(member, 20)}]",
-                    f"{hit_points:>5} hp"
-                )
-
-                if '--stats' in sys.argv:
-                    print(ui.statblock(member))
-
-                if isinstance(member, Adventurer):
-                    if '--abilities' in sys.argv:
-                        print(ui.abilities(member))
-                    if '--level' in sys.argv:
-                        print(
-                            f"{member.profile}",
-                            f"1UP:{member.silver_for_next_level:,.0f}$"
-                        )
-
-                if isinstance(member, Humanoid):
-                    if '--inventory' in sys.argv:
-                        ui.print_inventory(member, True)
-                        print('-' * 39)
-                    elif '--arms' in sys.argv:
-                        ui.print_inventory(member)
-
-                print()
-
-            print('=' * 39)
-
+        print('-' * 39)
         print()
 
-    print(str(party.location))
-    print()
-    print('[ ' + ' ] [ '.join(sorted(actions.keys())) + ' ]')
-    print()
+        for member in sorted(entity.members, key=lambda member: member.id):
+
+            print(str(member))
+
+            if member.hits_taken > member.hit_dice:
+                hit_points = f"{member.hit_dice - member.hits_taken:d}/{member.hit_dice:d}"
+            else:
+                hit_points = f"{member.hits_remaining - member.partial_hit:d}/{member.hit_dice:d}"
+
+            print(
+                f"[{ui.health_bar(member, 20)}]",
+                f"{hit_points:>5} hp"
+            )
+
+            if '--stats' in sys.argv:
+                print(ui.statblock(member))
+
+            if isinstance(member, Adventurer):
+                if '--abilities' in sys.argv:
+                    print(ui.abilities(member))
+                if '--level' in sys.argv:
+                    print(
+                        f"{member.profile}",
+                        f"1UP:{member.silver_for_next_level:,.0f}$"
+                    )
+
+            if isinstance(member, Humanoid):
+                if '--inventory' in sys.argv:
+                    ui.print_inventory(member, True)
+                    print('-' * 39)
+                elif '--arms' in sys.argv:
+                    ui.print_inventory(member)
+
+            print()
+
+        print('=' * 39)
+        print()
