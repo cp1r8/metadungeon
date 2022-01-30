@@ -378,18 +378,18 @@ class Muser(Adventurer):
     PREFIX = 'M'
 
     MK1_SCRIPTS = [
-        mk1.CharmPerson,
         mk1.Decompile,
         mk1.DetectScript,
-        mk1.EnergyDart,
         mk1.FloatingDisc,
-        mk1.ForceShield,
         mk1.HoldPortal,
-        mk1.LightDarkness,
+        mk1.HypnotisePerson,
+        mk1.Light,
+        mk1.Shield,
         mk1.Sleep,
         mk1.TranslateWriting,
         mk1.Ventriloquism,
         mk1.Ward,
+        mk1.Zap,
     ]
 
     XP_NEXT_LV = (25, 25, 50, 100, 200, 400, 700, 1500, 1500)

@@ -3,11 +3,8 @@
 from . import Script
 
 
-class CharmPerson(Script):
-    pass
-
-
-class Decompile(Script):
+class Darkness(Script):
+    # TODO inverse: Light
     pass
 
 
@@ -15,7 +12,19 @@ class DetectScript(Script):
     pass
 
 
-class EnergyDart(Script):
+class Light(Script):
+    # TODO inverse: Darkness
+    pass
+
+
+class Ward(Script):
+    pass
+
+
+# Muser scripts
+
+
+class Decompile(Script):
     pass
 
 
@@ -23,15 +32,15 @@ class FloatingDisc(Script):
     pass
 
 
-class ForceShield(Script):
-    pass
-
-
 class HoldPortal(Script):
     pass
 
 
-class LightDarkness(Script):
+class HypnotisePerson(Script):
+    pass
+
+
+class Shield(Script):
     pass
 
 
@@ -47,5 +56,40 @@ class Ventriloquism(Script):
     pass
 
 
-class Ward(Script):
+class Zap(Script):
+    pass
+
+
+# Client scripts
+
+
+class Calm(Script):
+    # TODO inverse: Panic
+    pass
+
+
+class Harm(Script):
+    # TODO inverse: Heal
+    pass
+
+
+class Heal(Script):
+    # TODO inverse: Harm
+    pass
+
+
+class Panic(Script):
+    # TODO inverse: Calm
+    pass
+
+
+class Purify(Script):
+    pass
+
+
+class RepelDrones(Script):
+    pass
+
+
+class ResistCold(Script):
     pass
