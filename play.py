@@ -78,9 +78,18 @@ if __name__ == '__main__':
     for entity in sorted(party.location.entities, key=lambda entity: entity.id):
 
         print(str(entity))
-        print()
 
         if isinstance(entity, Unit):
+
+            # TODO unit "health bar"
+            # TODO unit status (e.g., lost/flee)
+
+            if '--stats' in sys.argv:
+                print(ui.unitstats(entity))
+
+            print('-' * 39)
+            print()
+
             for member in sorted(entity.members, key=lambda member: member.id):
 
                 print(str(member))
@@ -116,7 +125,8 @@ if __name__ == '__main__':
 
                 print()
 
-        print('=' * 39)
+            print('=' * 39)
+
         print()
 
     print(str(party.location))

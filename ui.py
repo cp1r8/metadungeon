@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from game.creatures import Creature, Humanoid
-from game.creatures.adventurers import Adventurer
+from game.creatures import Creature, Humanoid, Unit
+from game.creatures.adventurers import Adventurer, Party
 from game.objects import Heavy, Ranged, Stowable, TwoHanded
 from game.objects.armour import Armour, Shield
 from game.objects.containers import Belt, Container, ResourceContainer, StorageContainer
@@ -151,5 +151,18 @@ def statblock(char: Creature) -> str:
         stats.append(f"ML:{char.morale_rating:d}")
     else:
         stats.append(f"ML{char.base_morale_rating:d}:{char.morale_rating:d}")
+
+    return ' '.join(stats)
+
+
+def unitstats(unit: Unit):
+
+    stats = []
+
+    if isinstance(unit, Party):
+        stats.append(f"LV:{unit.level}")
+
+    stats.append(f"HD:{unit.hit_dice:d}")
+    stats.append(f"MV:{unit.movement_rate:d}")
 
     return ' '.join(stats)

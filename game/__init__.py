@@ -28,7 +28,7 @@ class Entity:
         self.__index[self.id] = self
 
     def __str__(self) -> str:
-        return f"{type(self).__name__}:{self.id:06X}"
+        return f"{type(self).__name__}.{self.id:06X}"
 
     def actions(self, actor: 'Entity') -> dict[str, Callable]:
         return {}
@@ -38,7 +38,7 @@ class Entity:
         return cls.__index.get(id)
 
 
-class Motile(Entity):
+class Piece(Entity):
 
     def __init__(self, location: 'Place') -> None:
         super().__init__()
@@ -54,7 +54,7 @@ class Motile(Entity):
         self.__location.add(self)
 
 
-class Place(Motile):
+class Place(Piece):
 
     def __init__(self, location: 'Place') -> None:
         super().__init__(location)

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from statistics import median
 from . import Unit
 from .. import Place
 from ..dice import d3, d4, d6
@@ -573,6 +574,10 @@ class Party(Unit):
         super().__init__(location)
         self.flee = False
         self.lost = False
+
+    @property
+    def level(self) -> int:
+        return int(median(getattr(member, 'level', 0) for member in self.members))
 
     @classmethod
     def assemble(cls, level: int, members: int, location: Place, auto_equip: bool = True) -> 'Party':

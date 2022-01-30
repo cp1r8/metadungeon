@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from .. import Motile, Place
+from .. import Piece, Place
 from ..dice import d6, d20
 from ..objects import armour, containers, DualHanded, Holdable, Wearable
 from ..objects.weapons import Weapon
@@ -14,7 +14,7 @@ class WearError(ValueError):
     pass
 
 
-class Creature(Motile):
+class Creature(Piece):
 
     class Attack:
 
@@ -344,6 +344,10 @@ class Unit(Place):
     @property
     def members(self) -> set[Creature]:
         return {entity for entity in self.entities if isinstance(entity, Creature)}
+
+    @property
+    def hit_dice(self) -> int:
+        return sum(getattr(entity, 'hit_dice', 0) for entity in self.entities)
 
     @property
     def movement_rate(self) -> int:
