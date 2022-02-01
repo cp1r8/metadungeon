@@ -123,6 +123,15 @@ class Container(Generic[T]):
         self.__contents.remove(item)
 
 
+class Pile(Entity, Container[object]):
+
+    CAPACITY = 9999
+
+    def __init__(self) -> None:
+        Entity.__init__(self)
+        Container.__init__(self)
+
+
 class StorageContainer(Entity, Container[Stowable]):
 
     def __init__(self) -> None:

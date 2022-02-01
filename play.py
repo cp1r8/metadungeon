@@ -3,6 +3,7 @@
 from game import World
 from game.creatures import Humanoid, Unit
 from game.creatures.adventurers import Adventurer, Party
+from game.objects.containers import Container
 from game.places.underground import Dungeon
 from game.dice import d4
 from pathlib import Path
@@ -72,7 +73,7 @@ if __name__ == '__main__':
         pickle.dump((world, party), output)
 
     print(f"{str(world):<18}", world.now)
-    print()
+    print('-' * 39)
     print(str(party.location))
     print()
     print('[ ' + ' ] [ '.join(sorted(actions.keys())) + ' ]')
@@ -80,9 +81,17 @@ if __name__ == '__main__':
     print()
 
     for entity in sorted(party.location.entities, key=lambda entity: entity.id):
+
         if isinstance(entity, Unit):
             continue
+
         print(str(entity))
+
+        if isinstance(entity, Container):
+            for item in entity.contents:
+                ui.print_inventory_item(item)
+            print('-' * 39)
+
         print()
 
     for entity in sorted(party.location.entities, key=lambda entity: entity.id):

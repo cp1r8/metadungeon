@@ -4,7 +4,8 @@ from .. import Place
 from ..creatures import Unit, animals, humans, monsters, mutants
 from ..creatures.adventurers import Party
 from ..dice import d3, d4, d6, d8, d10, d20
-from random import choice, randint
+from ..objects import Quantifiable, containers, valuables
+from random import choice, randint, random
 from typing import Callable
 
 
@@ -225,6 +226,14 @@ class Dungeon(Place):
         (animals.Wolf, 2*d6),
     ]
 
+    ROOM_TREASURE_LV1 = [
+        (1.00, {valuables.Silver: 1*d6 * 100}),
+        (0.50, {valuables.Gold: 1*d6 * 10}),
+        # TODO (0.05, {valuables.Gems: 1*d6}), -- types
+        (0.02, {valuables.Jewellery: 1*d6}),
+        # TODO (0.02, {valuables.SpecialItem: 1}),
+    ]
+
     MAXY = 10
     MAXZ = 10
 
@@ -278,18 +287,20 @@ class Dungeon(Place):
     def __discoverRoom(self, y: int, z: int, roll: int) -> Room:
         if roll <= 2:
             room = self.Room(self, y, z)
-            # TODO 1-in-6 treasure
+            if d6() <= 1:
+                room.add(self.__randomTreasure(room))
         elif roll <= 4:
             room = self.Room(self, y, z)
             room.add(self.__randomEncounter(room))
-            # TODO 3-in-6 treasure
+            # TODO 3-in-6 treasure based on encounter TT
         elif roll <= 5:
             room = self.Room(self, y, z)
             # TODO special
         else:
             room = self.Room(self, y, z)
             # TODO trap
-            # TODO 2-in-6 treasure
+            if d6() <= 2:
+                room.add(self.__randomTreasure(room))
         return room
 
     def __discoverStairway(self, y: int, z: int, roll: int) -> Stairway:
@@ -304,3 +315,16 @@ class Dungeon(Place):
         # TODO encounters by level
         creature_type, number_appearing = choice(self.ENCOUNTERS_LV1)
         return creature_type.encounter(location, sum(number_appearing))
+
+    def __randomTreasure(self, location: Area) -> containers.Pile:
+        pile = containers.Pile()
+        # TODO room treature by level
+        for chance, items in self.ROOM_TREASURE_LV1:
+            if chance == 1 or random() <= chance:
+                for item_type, quantity in items.items():
+                    if issubclass(item_type, Quantifiable):
+                        pile.add(item_type(sum(quantity)))
+                    else:
+                        for _ in range(0, sum(quantity)):
+                            pile.add(item_type())
+        return pile
