@@ -3,7 +3,7 @@
 from .. import Place
 from ..creatures import Unit, animals, humans, monsters, mutants
 from ..creatures.adventurers import Party
-from ..dice import d3, d4, d6, d8, d10, d20
+from ..dice import d3, d4, d6, d8, d10, d12, d20
 from ..objects import Quantifiable, containers, valuables
 from random import choice, randint, random
 from typing import Callable
@@ -226,14 +226,6 @@ class Dungeon(Place):
         (animals.Wolf, 2*d6),
     ]
 
-    ROOM_TREASURE_LV1 = [
-        (1.00, {valuables.Silver: 1*d6 * 100}),
-        (0.50, {valuables.Gold: 1*d6 * 10}),
-        # TODO (0.05, {valuables.Gems: 1*d6}), -- types
-        (0.02, {valuables.Jewellery: 1*d6}),
-        # TODO (0.02, {valuables.SpecialItem: 1}),
-    ]
-
     MAXY = 10
     MAXZ = 10
 
@@ -317,14 +309,69 @@ class Dungeon(Place):
         return creature_type.encounter(location, sum(number_appearing))
 
     def __randomTreasure(self, location: Area) -> containers.Pile:
+
+        ROOM_TREASURE_LEVEL_1 = [
+            (1.00, {valuables.Silver: 1*d6 * 100}),
+            (0.50, {valuables.Gold: 1*d6 * 10}),
+            (0.05, {valuables.Gems: 1*d6}),
+            (0.02, {valuables.Jewellery: 1*d6}),
+            # TODO (0.02, {valuables.SpecialItem: 1}),
+        ]
+
+        ROOM_TREASURE_LEVEL_2_3 = [
+            (1.00, {valuables.Silver: 1*d12 * 100}),
+            (0.50, {valuables.Gold: 1*d6 * 100}),
+            (0.10, {valuables.Gems: 1*d6}),
+            (0.05, {valuables.Jewellery: 1*d6}),
+            # TODO (0.08, {valuables.SpecialItem: 1}),
+        ]
+
+        ROOM_TREASURE_LEVEL_4_5 = [
+            (1.00, {valuables.Silver: 1*d6 * 1000}),
+            (1.00, {valuables.Gold: 1*d6 * 200}),
+            (0.20, {valuables.Gems: 1*d6}),
+            (0.10, {valuables.Jewellery: 1*d6}),
+            # TODO (0.10, {valuables.SpecialItem: 1}),
+        ]
+
+        ROOM_TREASURE_LEVEL_6_7 = [
+            (1.00, {valuables.Silver: 1*d6 * 2000}),
+            (1.00, {valuables.Gold: 1*d6 * 500}),
+            (0.30, {valuables.Gems: 1*d6}),
+            (0.15, {valuables.Jewellery: 1*d6}),
+            # TODO (0.15, {valuables.SpecialItem: 1}),
+        ]
+
+        ROOM_TREASURE_LEVEL_8_9 = [
+            (1.00, {valuables.Silver: 1*d6 * 5000}),
+            (1.00, {valuables.Gold: 1*d6 * 1000}),
+            (0.40, {valuables.Gems: 1*d12}),
+            (0.20, {valuables.Jewellery: 1*d12}),
+            # TODO (0.20, {valuables.SpecialItem: 1}),
+        ]
+
         pile = containers.Pile()
-        # TODO room treature by level
-        for chance, items in self.ROOM_TREASURE_LV1:
+
+        if location.z <= 1:
+            treasure = ROOM_TREASURE_LEVEL_1
+        elif location.z <= 3:
+            treasure = ROOM_TREASURE_LEVEL_2_3
+        elif location.z <= 5:
+            treasure = ROOM_TREASURE_LEVEL_4_5
+        elif location.z <= 7:
+            treasure = ROOM_TREASURE_LEVEL_6_7
+        else:
+            treasure = ROOM_TREASURE_LEVEL_8_9
+
+        for chance, items in treasure:
             if chance == 1 or random() <= chance:
                 for item_type, quantity in items.items():
+                    # TODO specific types of gems?
+                    # TODO special items
                     if issubclass(item_type, Quantifiable):
                         pile.add(item_type(sum(quantity)))
                     else:
                         for _ in range(0, sum(quantity)):
                             pile.add(item_type())
+
         return pile
