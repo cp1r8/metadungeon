@@ -5,9 +5,9 @@ from . import Unit
 from .. import Place
 from ..dice import d3, d4, d6
 from ..objects import armour, containers, documents, supplies, tools, valuables, weapons
-from ..scripts import mk1
+from ..scripts import muser
 from .humans import Human
-from random import choice
+from random import choice, sample
 
 
 class Adventurer(Human):
@@ -378,20 +378,109 @@ class Muser(Adventurer):
 
     PREFIX = 'M'
 
-    MK1_SCRIPTS = [
-        mk1.Decompile,
-        mk1.DetectScript,
-        mk1.FloatingDisc,
-        mk1.HoldPortal,
-        mk1.HypnotisePerson,
-        mk1.Light,
-        mk1.Shield,
-        mk1.Sleep,
-        mk1.TranslateWriting,
-        mk1.Ventriloquism,
-        mk1.Ward,
-        mk1.Zap,
-    ]
+    SCRIPTS_BY_LV = (
+        (1, 0, 0, 0, 0, 0),
+        (2, 0, 0, 0, 0, 0),
+        (2, 1, 0, 0, 0, 0),
+        (2, 2, 0, 0, 0, 0),
+        (2, 2, 1, 0, 0, 0),
+        (2, 2, 2, 0, 0, 0),
+        (3, 2, 2, 1, 0, 0),
+        (3, 3, 2, 2, 0, 0),
+        (3, 3, 3, 2, 1, 0),
+        (3, 3, 3, 3, 2, 0),
+        (4, 3, 3, 3, 2, 1),
+        (4, 4, 3, 3, 3, 2),
+        (4, 4, 4, 3, 3, 3),
+        (4, 4, 4, 4, 3, 3),
+        (4, 4, 4, 4, 4, 3),
+    )
+
+    SCRIPTS_OF_LV = (
+        (
+            muser.Decompile,
+            muser.DetectScript,
+            muser.FloatingDisc,
+            muser.HoldPortal,
+            muser.HypnotisePerson,
+            muser.Light1,
+            muser.Shield1,
+            muser.Sleep,
+            muser.TranslateWriting,
+            muser.Ventriloquism,
+            muser.Ward1,
+            muser.Zap,
+        ),
+        (
+            muser.DetectInvisible,
+            muser.Illusion,
+            muser.Invisibility,
+            muser.Levitate,
+            muser.Light2,
+            muser.LocateObject,
+            muser.LockPortal,
+            muser.MirrorImage,
+            muser.OpenPortal,
+            muser.Telepathy,
+            muser.Web,
+            # TODO 1 more
+        ),
+        (
+            muser.Clairvoyance,
+            muser.Fireball,
+            muser.Fly,
+            muser.Haste,
+            muser.HoldPerson,
+            muser.Infravision,
+            muser.Invisibility2,
+            muser.KillScript,
+            muser.Lightning,
+            muser.Shield2,
+            muser.Ward2,
+            muser.WaterBreathing,
+        ),
+        (
+            muser.Confusion,
+            muser.DimensionDoor,
+            muser.FlameWall,
+            muser.HypnotiseCreature,
+            muser.IceWall,
+            muser.IllusoryTerrain,
+            muser.MassIllusion,
+            muser.PlantGrowth,
+            muser.Polymorph,
+            muser.PolymorphSelf,
+            muser.RemoveCurse,
+            muser.Telesthesia,
+        ),
+        (
+            muser.ContactEntity,
+            muser.CreateDrone,
+            muser.ElementalContruct,
+            muser.HoldCreature,
+            muser.Neuroinhibitor,
+            muser.Neurotoxin,
+            muser.Portal,
+            muser.StoneWall,
+            muser.Telekinesis,
+            muser.Teleport,
+            muser.Transmute,
+            # TODO 1 more
+        ),
+        (
+            muser.Compel,
+            muser.ControlWeather,
+            muser.Death,
+            muser.Depetrify,
+            muser.Disintegrate,
+            muser.Hydrokinesis,
+            muser.ScriptBarrier,
+            muser.Stalker,
+            muser.Telepresence,
+            muser.Terrakinesis,
+            # TODO 2 more
+        ),
+    )
 
     XP_NEXT_LV = (25, 25, 50, 100, 200, 400, 700, 1500, 1500)
 
@@ -453,8 +542,10 @@ class Muser(Adventurer):
         for item in self.random_compound(d6()):
             belt.add(item)
         codex = documents.Codex()
-        # TODO LV > 1, prepared scripts
-        codex.add(choice(self.MK1_SCRIPTS)())
+        for ix in range(0, 6):
+            num_scripts = self.SCRIPTS_BY_LV[self.level - 1][ix]
+            for script_type in sample(self.SCRIPTS_OF_LV[ix], num_scripts):
+                codex.add(script_type())
         belt.add(codex)
 
     def random_primary_weapons(self, roll: int) -> list:
