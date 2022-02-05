@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from . import Fluid, Quantifiable, Stowable, Substance
+from .tools import Torch
 
 
 class Drinkable:
@@ -49,7 +50,12 @@ class Sundries(Supply):
 
 
 class Torches(Supply):
+
     ITEMS_PER_SLOT = 6
+
+    def draw(self) -> Torch:
+        self.deplete(1)
+        return Torch()
 
 
 class Ammunition(Supply):

@@ -72,7 +72,7 @@ if __name__ == '__main__':
     with game_file.open('wb') as output:
         pickle.dump((world, party), output)
 
-    print(f"{str(world):<18}", world.now)
+    print(f"{str(world):<19} {world.now}")
     print('-' * 39)
     print(str(party.location))
     print()
@@ -120,8 +120,8 @@ if __name__ == '__main__':
                 hit_points = f"{member.hits_remaining - member.partial_hit:d}/{member.hit_dice:d}"
 
             print(
-                f"[{ui.health_bar(member, 20)}]",
-                f"{hit_points:>5} hp"
+                f"[{ui.health_bar(member, 28)}]",
+                f"{hit_points:>5} hp",
             )
 
             if '--stats' in sys.argv:

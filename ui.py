@@ -6,7 +6,7 @@ from game.objects import Heavy, Ranged, Stowable, TwoHanded
 from game.objects.armour import Armour, Shield
 from game.objects.containers import Belt, Container, ResourceContainer, StorageContainer
 from game.objects.supplies import Supply
-from game.objects.tools import ImprovisedWeapon
+from game.objects.tools import ImprovisedWeapon, LightSource
 from game.objects.weapons import Weapon
 from math import ceil, floor
 
@@ -115,6 +115,9 @@ def print_inventory_item(item, prefix: str = ' '):
             name = f"{name} ({item.items:d} items)"
         else:
             name = f"{name}:"
+    elif isinstance(item, LightSource):
+        if item.lit:
+            uses = '***'
     elif isinstance(item, Supply):
         if item.items_per_slot > 10:
             uses = f"{item.quantity:d}"
