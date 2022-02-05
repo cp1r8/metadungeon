@@ -23,7 +23,7 @@ def abilities(char: Adventurer) -> str:
     ])
 
 
-def health_bar(char: Creature, width: int, full: str = '#', hit: str = ':', wound: str = '·') -> str:
+def health_bar(char: Creature, width: int, full: str = '#', hit: str = '-', wound: str = ' ') -> str:
 
     if char.hit_dice == 0:
         return (wound * width) if char.hits_taken else (full * width)
