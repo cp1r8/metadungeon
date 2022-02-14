@@ -134,21 +134,23 @@ def print_inventory_item(item, prefix: str = ' '):
 
 def statblock(char: Creature) -> str:
 
-    stats = [
-        f"HD:{char.hit_dice:d}{char.hit_die_modifier:+d}",
-        f"TH:{char.attack_target_value:d}",
-        f"SV:{char.save_target_value:d}",
-    ]
+    stats = []
 
     if char.armour_class == char.base_armour_class:
         stats.append(f"AC:{char.armour_class:d}")
     else:
         stats.append(f"AC{char.base_armour_class:d}:{char.armour_class:d}")
 
+    # TODO partial HD
+    stats.append(f"HD:{char.hit_dice:d}{char.hit_die_modifier:+d}")
+    stats.append(f"TH:{char.attack_target_value:d}")
+
     if char.movement_rate == char.base_movement_rate:
         stats.append(f"MV:{char.movement_rate:d}")
     else:
         stats.append(f"MV{char.base_movement_rate:d}:{char.movement_rate:d}")
+
+    stats.append(f"SV:{char.save_target_value:d}")
 
     if char.morale_rating == char.base_morale_rating:
         stats.append(f"ML:{char.morale_rating:d}")

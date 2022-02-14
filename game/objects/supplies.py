@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from .. import Entity
 from . import Fluid, Quantifiable, Stowable, Substance
-from .tools import Torch
 
 
 class Drinkable:
@@ -53,7 +53,8 @@ class Torches(Supply):
 
     ITEMS_PER_SLOT = 6
 
-    def draw(self) -> Torch:
+    def draw(self) -> Entity:
+        from .tools import Torch
         self.deplete(1)
         return Torch()
 

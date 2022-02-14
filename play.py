@@ -131,6 +131,7 @@ if __name__ == '__main__':
                 if '--abilities' in sys.argv:
                     print(ui.abilities(member))
                 if '--level' in sys.argv:
+                    # TODO calculate "bounty"
                     print(
                         f"{member.profile}",
                         f"1UP:{member.silver_for_next_level:,.0f}$"
